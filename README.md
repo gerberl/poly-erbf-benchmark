@@ -1,0 +1,123 @@
+# Polynomial and Ellipsoidal RBF Benchmark
+
+Reproducibility repository for the paper: *Revisiting Chebyshev Polynomial and Anisotropic RBF Models for Tabular Regression*.
+
+This benchmark compares eight regression models -- including "forgotten" smooth-function families (Chebyshev polynomials, ellipsoidal RBF networks) -- against tree ensembles and deep learning on 55 tabular regression datasets. We evaluate both predictive accuracy (adjusted R²) and generalisation gap, stratified by expected target-function smoothness.
+
+## Repository structure
+
+```
+benchmark/          # Library modules (data loading, tuning, evaluation, analysis)
+scripts/            # Runnable scripts (benchmark runner, summarisation, figure generation)
+results/            # Pre-computed summary CSVs from the paper's experiments
+tests/              # Unit tests for smoothness and evaluation metrics
+```
+
+## Setup
+
+```bash
+# Create environment
+micromamba create -f environment.yml
+micromamba activate poly_erbf_benchmark
+
+# Install custom model packages
+pip install erbf poly-basis-ml tabular-fs
+
+# Verify
+python -c "from erbf import ERBFRegressor; print('OK')"
+```
+
+**Optional**: TabPFN requires a separate install (`pip install tabpfn`). The benchmark runs without it -- TabPFN is simply skipped.
+
+### Local development (editable installs)
+
+If working with local clones of the custom packages:
+
+```bash
+pip install -e ../erbf
+pip install -e ../poly_basis_ml
+```
+
+## Running the benchmark
+
+All scripts add the repo root to `sys.path`, so `benchmark/` is importable without installation.
+
+```bash
+# Quick test (2 models x 2 datasets)
+python scripts/run_benchmark.py --test
+
+# Benchmark A: all models, preprocessed (max 50 features, 50k samples)
+python scripts/run_benchmark.py \
+    --max-features 50 --max-samples 50000 \
+    --output-dir results/my_run_A --n-jobs 17
+
+# Benchmark B: scalable models only, full-scale data, no preprocessing
+python scripts/run_benchmark.py \
+    --models ridge dt xgb chebypoly chebytree \
+    --datasets diamonds nyc-taxi-green-dec-2016 particulate-matter-ukair-2017 \
+               qsar_tid_11 superconduct friedman1_d100 \
+    --no-preprocess --output-dir results/my_run_B --n-jobs 17
+
+# Run specific models or datasets
+python scripts/run_benchmark.py --models erbf chebypoly --datasets superconduct esol
+
+# Summarise results
+python scripts/summarize_benchmark.py results/my_run_A
+```
+
+## Regenerating figures from pre-computed results
+
+The `results/benchmark_summary/` directory contains the summary CSVs used in the paper. To regenerate figures:
+
+```bash
+python scripts/generate_cd_plots.py
+python scripts/generate_pareto_plots.py
+python scripts/generate_boxstrip_r2adj.py
+python scripts/compute_timing_table.py
+```
+
+Figures are written to `figures/`.
+
+## Probe analyses
+
+```bash
+# Regularity probe (requires .joblib result files from a benchmark run)
+python scripts/compute_probe_regularity.py --results-dir results/my_run_A
+
+# Prediction stability
+python scripts/compute_prediction_stability.py --results-dir results/my_run_A
+```
+
+## Models
+
+| Key | Model | Package |
+|-----|-------|---------|
+| `ridge` | Ridge regression | scikit-learn |
+| `dt` | Decision tree | scikit-learn |
+| `rf` | Random forest | scikit-learn |
+| `xgb` | XGBoost | xgboost |
+| `erbf` | Ellipsoidal RBF network | erbf |
+| `chebypoly` | Chebyshev polynomial regression | poly-basis-ml |
+| `chebytree` | Chebyshev model tree | poly-basis-ml |
+| `tabpfn` | TabPFN | tabpfn (optional) |
+
+## Dataset strata
+
+Datasets are grouped into four strata by expected target-function smoothness:
+
+| Stratum | Domain | Expected best models |
+|---------|--------|---------------------|
+| S1 | Engineering / simulation | ERBF, Chebyshev |
+| S2 | Behavioural / social | Trees |
+| S3 | Physics / chemistry / life science | ERBF, Chebyshev |
+| S4 | Economic / pricing (threshold-heavy) | Trees |
+
+## Tests
+
+```bash
+python -m pytest tests/ -v
+```
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).

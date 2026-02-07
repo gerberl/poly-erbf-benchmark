@@ -1,0 +1,5 @@
+stratum,Small (<1K),Medium (1K-10K),Large (>=10K)
+S1,chebytree (1/3),tabpfn (8/8),tabpfn (2/2)
+S2,tabpfn (3/5),chebypoly (1/2),tabpfn (2/3)
+S3,tabpfn (6/7),tabpfn (5/5),tabpfn (3/4)
+S4,rf (1/2),tabpfn (3/4),tabpfn (9/10)

@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+.cache/
+*.joblib
+*.egg-info/
+dist/
+build/
+
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# figures tracked for reproducibility
+
+logs/
+*.log
+
+benchmark/data/.cache/
+.env

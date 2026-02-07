@@ -1,0 +1,9 @@
+model,R²,MAE,RMSE,Total
+tabpfn,44,50,43,137
+chebytree,2,2,4,8
+chebypoly,3,1,2,6
+erbf,3,0,3,6
+rf,2,1,2,5
+xgb,1,1,1,3
+dt,0,0,0,0
+ridge,0,0,0,0
