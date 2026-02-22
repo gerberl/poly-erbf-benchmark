@@ -30,15 +30,6 @@ python -c "from erbf import ERBFRegressor; print('OK')"
 
 **Optional**: TabPFN requires a separate install (`pip install tabpfn`). The benchmark runs without it -- TabPFN is simply skipped.
 
-### Local development (editable installs)
-
-If working with local clones of the custom packages:
-
-```bash
-pip install -e ../erbf
-pip install -e ../poly_basis_ml
-```
-
 ## Running the benchmark
 
 All scripts add the repo root to `sys.path`, so `perbf/` is importable without installation. Alternatively, `pip install -e .` uses the included `pyproject.toml`.
