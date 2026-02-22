@@ -7,10 +7,11 @@ This benchmark compares eight regression models -- including "forgotten" smooth-
 ## Repository structure
 
 ```
-benchmark/          # Library modules (data loading, tuning, evaluation, analysis)
+perbf/              # Library modules (data loading, tuning, evaluation, analysis)
 scripts/            # Runnable scripts (benchmark runner, summarisation, figure generation)
+making_plots/       # Figure generation scripts (linedot rank plots)
 results/            # Pre-computed summary CSVs from the paper's experiments
-tests/              # Unit tests for smoothness and evaluation metrics
+figures/            # Generated figures used in the paper
 ```
 
 ## Setup
@@ -40,7 +41,7 @@ pip install -e ../poly_basis_ml
 
 ## Running the benchmark
 
-All scripts add the repo root to `sys.path`, so `benchmark/` is importable without installation.
+All scripts add the repo root to `sys.path`, so `perbf/` is importable without installation. Alternatively, `pip install -e .` uses the included `pyproject.toml`.
 
 ```bash
 # Quick test (2 models x 2 datasets)
@@ -78,16 +79,6 @@ python scripts/compute_timing_table.py
 
 Figures are written to `figures/`.
 
-## Probe analyses
-
-```bash
-# Regularity probe (requires .joblib result files from a benchmark run)
-python scripts/compute_probe_regularity.py --results-dir results/my_run_A
-
-# Prediction stability
-python scripts/compute_prediction_stability.py --results-dir results/my_run_A
-```
-
 ## Models
 
 | Key | Model | Package |
@@ -111,12 +102,6 @@ Datasets are grouped into four strata by expected target-function smoothness:
 | S2 | Behavioural / social | Trees |
 | S3 | Physics / chemistry / life science | ERBF, Chebyshev |
 | S4 | Economic / pricing (threshold-heavy) | Trees |
-
-## Tests
-
-```bash
-python -m pytest tests/ -v
-```
 
 ## Licence
 
