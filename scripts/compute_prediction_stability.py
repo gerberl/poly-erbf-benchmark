@@ -47,9 +47,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]  # project root
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / 'scripts'))
 
-from benchmark.data.loader import load_dataset
-from benchmark.preprocessing import FoldPreprocessor
-from benchmark.tuning.optuna_cv import MODEL_FACTORIES, DEFAULT_SCALE_MAP
+from perbf.data.loader import load_dataset
+from perbf.preprocessing import FoldPreprocessor
+from perbf.tuning.optuna_cv import MODEL_FACTORIES, DEFAULT_SCALE_MAP
 from utils.batch_runner import preprocess_dataset
 
 # Suppress sklearn version warnings from unpickling

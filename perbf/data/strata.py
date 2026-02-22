@@ -17,7 +17,7 @@ ARCHITECTURE - Single Points of Truth:
    - DERIVED cache, regenerated from loader.py via regenerate_metadata_cache()
    - Contains: dataset, n_samples, n_features, stratum, source, ordinal
    - Used by summarize_benchmark.py for fast lookups
-   - Regenerate after changing loader.py: `python -c "from benchmark.data.loader import regenerate_metadata_cache; regenerate_metadata_cache()"`
+   - Regenerate after changing loader.py: `python -c "from perbf.data.loader import regenerate_metadata_cache; regenerate_metadata_cache()"`
 
 4. notes-plans/dataset_registry_17jan26.md:
    - Human-readable documentation (may drift from code - loader.py is authoritative)

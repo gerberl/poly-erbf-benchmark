@@ -8,7 +8,7 @@ Provides robust evaluation with:
 - Per-fold and aggregated results
 
 Usage:
-    from benchmark.evaluation.cv import evaluate_model, run_benchmark, get_eval_cv
+    from perbf.evaluation.cv import evaluate_model, run_benchmark, get_eval_cv
 
     # Single model evaluation
     results = evaluate_model(model, X, y)
@@ -28,7 +28,7 @@ import pandas as pd
 from sklearn.model_selection import RepeatedKFold
 from sklearn.metrics import r2_score, mean_squared_error
 
-from benchmark.preprocessing import FoldPreprocessor
+from perbf.preprocessing import FoldPreprocessor
 
 
 # =============================================================================
@@ -340,7 +340,7 @@ if __name__ == '__main__':
     from pathlib import Path
     # Add project root to path
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-    from benchmark.data.loader import load_dataset
+    from perbf.data.loader import load_dataset
 
     from sklearn.linear_model import Ridge
     from sklearn.ensemble import RandomForestRegressor

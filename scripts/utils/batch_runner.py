@@ -91,7 +91,7 @@ def preprocess_dataset(
     preprocess_info : dict
         Metadata about preprocessing applied
     """
-    from benchmark.preprocessing import select_k_best_mi, prefilter_combined, drop_high_na, drop_quasi_constant
+    from perbf.preprocessing import select_k_best_mi, prefilter_combined, drop_high_na, drop_quasi_constant
 
     y = np.asarray(y).ravel()
     random_state = config.get('random_state', 42)
@@ -284,8 +284,8 @@ def _run_single_experiment(
     -------
     dict with status and results or error info
     """
-    from benchmark.data.loader import load_dataset
-    from benchmark.tuning.optuna_cv import nested_cv_tune_and_evaluate
+    from perbf.data.loader import load_dataset
+    from perbf.tuning.optuna_cv import nested_cv_tune_and_evaluate
 
     experiment_id = f"{model_name}|{dataset_name}"
 

@@ -61,8 +61,8 @@ sys.path.insert(0, str(project_root))
 
 from scripts.utils.batch_runner import run_benchmark_batch, DEFAULT_CONFIG
 from scripts.utils.result_loader import load_all_results, create_summary_dataframe, add_rankings
-from benchmark.tuning.optuna_cv import MODEL_TRIAL_COUNTS
-from benchmark.defaults import MODEL_DEFAULTS
+from perbf.tuning.optuna_cv import MODEL_TRIAL_COUNTS
+from perbf.defaults import MODEL_DEFAULTS
 
 
 def log_package_versions(save_path=None):
@@ -113,7 +113,7 @@ def get_model_configs(n_trials_override: int = None, no_tune: bool = False) -> d
     Args:
         n_trials_override: If set, use this for all models (uniform).
                           If None, use proportional MODEL_TRIAL_COUNTS.
-        no_tune: If True, skip tuning and use sensible defaults from benchmark.defaults.
+        no_tune: If True, skip tuning and use sensible defaults from perbf.defaults.
 
     Returns:
         Dict mapping model name to config overrides.
@@ -140,7 +140,7 @@ def get_model_configs(n_trials_override: int = None, no_tune: bool = False) -> d
 
 def get_all_datasets():
     """Get all registered datasets."""
-    from benchmark.data.loader import get_benchmark_datasets
+    from perbf.data.loader import get_benchmark_datasets
     return sorted(get_benchmark_datasets())
 
 

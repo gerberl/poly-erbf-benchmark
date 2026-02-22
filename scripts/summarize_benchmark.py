@@ -74,7 +74,7 @@ def get_dataset_stratum(dataset_name: str) -> str:
     if 'stratum' in info:
         return info['stratum']
     # Fallback to loader
-    from benchmark.data.loader import get_dataset_info
+    from perbf.data.loader import get_dataset_info
     info = get_dataset_info(dataset_name)
     return info['stratum']
 
@@ -105,7 +105,7 @@ def is_ordinal_dataset(dataset_name: str) -> bool:
         return bool(info['ordinal'])
     # Fallback to loader
     try:
-        from benchmark.data.loader import is_ordinal_dataset as _is_ordinal
+        from perbf.data.loader import is_ordinal_dataset as _is_ordinal
         return _is_ordinal(dataset_name)
     except ImportError:
         return False
@@ -119,7 +119,7 @@ def is_discrete_dataset(dataset_name: str) -> bool:
         return bool(info['discrete'])
     # Fallback to loader
     try:
-        from benchmark.data.loader import is_discrete_dataset as _is_discrete
+        from perbf.data.loader import is_discrete_dataset as _is_discrete
         return _is_discrete(dataset_name)
     except ImportError:
         return False
@@ -561,7 +561,7 @@ def format_stratum_summary(df: pd.DataFrame, stratum_df: pd.DataFrame) -> str:
     lines = []
 
     # Stratum descriptions (single point of truth in benchmark/data/strata.py)
-    from benchmark.data.strata import STRATUM_NAMES_SHORT
+    from perbf.data.strata import STRATUM_NAMES_SHORT
     stratum_names = STRATUM_NAMES_SHORT
 
     for stratum in sorted(stratum_df['stratum'].unique()):

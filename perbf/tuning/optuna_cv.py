@@ -10,8 +10,8 @@ Two-level preprocessing:
 - Fold-level: FoldPreprocessor per-fold (scaling, encoding to prevent leakage)
 
 Usage:
-    from benchmark.tuning.optuna_cv import tune_model, get_best_model, MODEL_FACTORIES
-    from benchmark.tuning.optuna_cv import nested_cv_tune_and_evaluate
+    from perbf.tuning.optuna_cv import tune_model, get_best_model, MODEL_FACTORIES
+    from perbf.tuning.optuna_cv import nested_cv_tune_and_evaluate
 
     # Tune on a dataset
     study = tune_model('rf', X, y, n_trials=50)
@@ -49,9 +49,9 @@ from sklearn.linear_model import Ridge
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 
-from benchmark.preprocessing import FoldPreprocessor
-from benchmark.evaluation.metrics import adjusted_r2, rmse, mae, mape
-from benchmark.analysis.model_complexity import extract_model_info
+from perbf.preprocessing import FoldPreprocessor
+from perbf.evaluation.metrics import adjusted_r2, rmse, mae, mape
+from perbf.analysis.model_complexity import extract_model_info
 
 # Suppress Optuna logging
 optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -575,7 +575,7 @@ def get_default_model(model_name: str, params: Optional[Dict[str, Any]] = None):
     model_name : str
         Name of model
     params : dict, optional
-        Custom hyperparameters to override defaults (from benchmark.defaults)
+        Custom hyperparameters to override defaults (from perbf.defaults)
 
     Returns
     -------
@@ -813,10 +813,10 @@ def _run_single_outer_fold(
     train_rmse = rmse(y_trainval, y_trainval_pred)
     train_mae = mae(y_trainval, y_trainval_pred)
 
-    # Extract model complexity info (from benchmark.analysis.model_complexity)
+    # Extract model complexity info (from perbf.analysis.model_complexity)
     model_info = extract_model_info(model, model_name)
 
-    # Adjusted R² using dataset dimensionality (from benchmark.evaluation.metrics)
+    # Adjusted R² using dataset dimensionality (from perbf.evaluation.metrics)
     # NOTE: Use training set size (n_trainval), not test set size, as this determines
     # the effective degrees of freedom used to fit the model
     d = X_trainval_t.shape[1]  # number of input features
@@ -1140,7 +1140,7 @@ if __name__ == '__main__':
     from pathlib import Path
     # Add project root to path
     sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-    from benchmark.data.loader import load_dataset
+    from perbf.data.loader import load_dataset
 
     print("=" * 60)
     print("Tuning Module - Quick Test")

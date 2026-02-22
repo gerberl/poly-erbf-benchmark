@@ -20,7 +20,7 @@ class TestKnnJump:
 
     def test_basic_output_structure(self):
         """Should return dict with expected keys."""
-        from benchmark.analysis import compute_knn_jump
+        from perbf.analysis import compute_knn_jump
 
         rng = np.random.RandomState(42)
         X = rng.randn(100, 3)
@@ -35,7 +35,7 @@ class TestKnnJump:
 
     def test_constant_zero_knn_jump(self):
         """Constant predictions should have zero knn_jump."""
-        from benchmark.analysis import compute_knn_jump
+        from perbf.analysis import compute_knn_jump
 
         rng = np.random.RandomState(42)
         X = rng.randn(200, 2)
@@ -46,7 +46,7 @@ class TestKnnJump:
 
     def test_subsampling(self):
         """Should subsample large datasets."""
-        from benchmark.analysis import compute_knn_jump
+        from perbf.analysis import compute_knn_jump
 
         rng = np.random.RandomState(42)
         X = rng.randn(10000, 3)
@@ -64,7 +64,7 @@ class TestPathMetrics:
 
     def test_basic_output_structure(self):
         """Should return dict with expected keys."""
-        from benchmark.analysis import compute_path_metrics
+        from perbf.analysis import compute_path_metrics
 
         rng = np.random.RandomState(42)
         X = rng.randn(100, 2)
@@ -80,7 +80,7 @@ class TestPathMetrics:
 
     def test_smooth_model_low_jumps(self):
         """Linear model should have zero/low path jumps."""
-        from benchmark.analysis import compute_path_metrics
+        from perbf.analysis import compute_path_metrics
 
         rng = np.random.RandomState(42)
         X = rng.randn(200, 2)
@@ -95,7 +95,7 @@ class TestPathMetrics:
 
     def test_tree_model_has_jumps(self):
         """Decision tree should have path jumps."""
-        from benchmark.analysis import compute_path_metrics
+        from perbf.analysis import compute_path_metrics
 
         rng = np.random.RandomState(42)
         X = rng.randn(500, 2)
@@ -114,7 +114,7 @@ class TestViolationProbability:
 
     def test_basic_output_structure(self):
         """Should return dict with expected keys."""
-        from benchmark.analysis import compute_violation_probability
+        from perbf.analysis import compute_violation_probability
 
         rng = np.random.RandomState(42)
         X = rng.randn(100, 2)
@@ -129,7 +129,7 @@ class TestViolationProbability:
 
     def test_smooth_vs_piecewise(self):
         """Piecewise predictions should have higher violation probability."""
-        from benchmark.analysis import compute_violation_probability
+        from perbf.analysis import compute_violation_probability
 
         rng = np.random.RandomState(42)
         X = rng.randn(500, 2)
@@ -164,7 +164,7 @@ class TestLocalLipschitz:
 
     def test_basic_output_structure(self):
         """Should return dict with expected quantile keys."""
-        from benchmark.analysis import compute_local_lipschitz_quantiles
+        from perbf.analysis import compute_local_lipschitz_quantiles
 
         rng = np.random.RandomState(42)
         X = rng.randn(100, 2)
@@ -178,7 +178,7 @@ class TestLocalLipschitz:
 
     def test_constant_prediction_low_lipschitz(self):
         """Constant predictions should have very low Lipschitz values."""
-        from benchmark.analysis import compute_local_lipschitz_quantiles
+        from perbf.analysis import compute_local_lipschitz_quantiles
 
         rng = np.random.RandomState(42)
         X = rng.randn(100, 2)
@@ -195,7 +195,7 @@ class TestModelSmoothnessProfile:
 
     def test_basic_output_structure(self):
         """Should return combined profile with all metrics."""
-        from benchmark.analysis import compute_model_smoothness_profile
+        from perbf.analysis import compute_model_smoothness_profile
 
         rng = np.random.RandomState(42)
         X = rng.randn(100, 2)
@@ -218,7 +218,7 @@ class TestModelSmoothnessProfile:
 
     def test_without_model(self):
         """Should work with just y_pred (no path metrics)."""
-        from benchmark.analysis import compute_model_smoothness_profile
+        from perbf.analysis import compute_model_smoothness_profile
 
         rng = np.random.RandomState(42)
         X = rng.randn(100, 2)
@@ -235,7 +235,7 @@ class TestModelSmoothnessProfile:
 
     def test_smooth_vs_tree_model(self):
         """Full profile should show clear difference between smooth and tree models."""
-        from benchmark.analysis import compute_model_smoothness_profile
+        from perbf.analysis import compute_model_smoothness_profile
 
         rng = np.random.RandomState(42)
         X = rng.randn(300, 2)
@@ -257,7 +257,7 @@ class TestExistingDatasetMetrics:
 
     def test_discontinuity_profile(self):
         """compute_discontinuity_profile should still work."""
-        from benchmark.analysis import compute_discontinuity_profile
+        from perbf.analysis import compute_discontinuity_profile
 
         rng = np.random.RandomState(42)
         X = rng.randn(200, 3)
@@ -271,7 +271,7 @@ class TestExistingDatasetMetrics:
 
     def test_individual_metrics(self):
         """Individual dataset metrics should be importable and work."""
-        from benchmark.analysis import llqd_distribution, ntj_stats, gtv
+        from perbf.analysis import llqd_distribution, ntj_stats, gtv
 
         rng = np.random.RandomState(42)
         X = rng.randn(100, 2)

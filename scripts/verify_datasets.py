@@ -25,7 +25,7 @@ import pandas as pd
 
 def verify_dataset(name, quick=False, verbose=False):
     """Verify a single dataset loads and has valid data."""
-    from benchmark.data.loader import load_dataset, DATASET_REGISTRY
+    from perbf.data.loader import load_dataset, DATASET_REGISTRY
 
     info = DATASET_REGISTRY.get(name, {})
     result = {
@@ -131,7 +131,7 @@ def main():
     parser.add_argument('datasets', nargs='*', help='Specific datasets to verify')
     args = parser.parse_args()
 
-    from benchmark.data.loader import DATASET_REGISTRY
+    from perbf.data.loader import DATASET_REGISTRY
 
     # Filter datasets
     if args.datasets:

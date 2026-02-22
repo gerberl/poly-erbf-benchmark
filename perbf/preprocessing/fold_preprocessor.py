@@ -9,7 +9,7 @@ Handles transformations that must be fit on training data only:
 - StandardScaler (uses train mean/std)
 
 Usage:
-    from benchmark.preprocessing import FoldPreprocessor
+    from perbf.preprocessing import FoldPreprocessor
 
     # Create with model-specific settings
     prep = FoldPreprocessor(scale=True)
