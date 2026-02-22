@@ -2,49 +2,53 @@
 """
 Summarize benchmark results from joblib files.
 
-Creates benchmark_summary/ directory with summary CSVs and summary.md.
+Default behavior: Creates benchmark_summary/ directory with:
+    - with_tabpfn/   (if TabPFN results exist)
+    - wo_tabpfn/     (CPU-deployable models only)
+Each subdirectory contains summary CSVs and summary.md.
 
 Usage:
-    python scripts/summarize_benchmark.py results/my_run
+    # Default: auto-generates both with/without TabPFN summaries
+    python scripts/summarize_benchmark.py results/ongoing_20jan26
 
     # With CD plots
-    python scripts/summarize_benchmark.py results/my_run --cd
-
-    # Exclude specific models
-    python scripts/summarize_benchmark.py results/my_run --exclude-models tabpfn
-
-    # Custom output directory
-    python scripts/summarize_benchmark.py results/my_run --output-dir my_summary/
+    python scripts/summarize_benchmark.py results/ongoing_20jan26 --cd
 
     # Include detailed hyperparameters CSV
-    python scripts/summarize_benchmark.py results/my_run --detailed
+    python scripts/summarize_benchmark.py results/ongoing_20jan26 --detailed
 
-Output:
-    results/my_run/benchmark_summary/
-        summary.md
-        summary.csv
-        wins_by_accuracy_metric.csv
-        summary_by_stratum.csv
-        summary_by_size_stratum.csv
-        stratum_size_matrix.csv
-        summary_by_target_type.csv
-        results_detailed.csv     (with --detailed)
+    # Override output directory (single summary mode)
+    python scripts/summarize_benchmark.py results/ongoing_20jan26 --output-dir my_summary/
+
+    # Exclude specific models
+    python scripts/summarize_benchmark.py results/ongoing_20jan26 --exclude-models erbfb
+
+Output structure (default mode):
+    results/ongoing_20jan26/benchmark_summary/
+        with_tabpfn/
+            summary.md           - Human-readable summary
+            summary.csv          - Aggregated metrics per model
+            wins_by_accuracy_metric.csv - Win counts (R², MAE, RMSE only)
+            summary_by_stratum.csv
+            summary_by_size_stratum.csv
+            stratum_size_matrix.csv
+            summary_by_target_type.csv
+        wo_tabpfn/
+            (same files as above)
+        results_detailed.csv     - Per model*dataset with hyperparameters (--detailed)
 """
 
 import argparse
-import sys
 import joblib
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from collections import defaultdict
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 
 def load_dataset_sizes_cache() -> pd.DataFrame:
     """Load the dataset sizes cache CSV."""
-    cache_path = Path(__file__).parent.parent / 'benchmark' / 'data' / 'dataset_sizes_cache.csv'
+    cache_path = Path(__file__).parent.parent / 'perbf' / 'data' / 'dataset_sizes_cache.csv'
     if cache_path.exists():
         return pd.read_csv(cache_path)
     return pd.DataFrame()
@@ -298,7 +302,16 @@ def load_results(results_dir: Path, include_hyperparams: bool = False) -> pd.Dat
 
 
 def compute_ranks(df: pd.DataFrame, metric: str = 'val_r2', higher_better: bool = True) -> pd.DataFrame:
-    """Compute per-dataset ranks for each model."""
+    """Compute per-dataset ranks for each model.
+
+    Models missing from a dataset (e.g. TabPFN on food_delivery_time) receive
+    worst rank (= total number of models in df) so that all models are ranked
+    over the same set of datasets.
+    """
+    all_models = sorted(df['model'].unique())
+    all_datasets = sorted(df['dataset'].unique())
+    k = len(all_models)
+
     ranks = []
     for dataset, group in df.groupby('dataset'):
         group = group.copy()
@@ -307,6 +320,10 @@ def compute_ranks(df: pd.DataFrame, metric: str = 'val_r2', higher_better: bool 
         else:
             group['rank'] = group[metric].rank(ascending=True, method='min')
         ranks.append(group[['model', 'dataset', 'rank']])
+        # Assign worst rank to missing models
+        missing = set(all_models) - set(group['model'])
+        for m in missing:
+            ranks.append(pd.DataFrame({'model': [m], 'dataset': [dataset], 'rank': [k]}))
     return pd.concat(ranks, ignore_index=True)
 
 
@@ -560,7 +577,7 @@ def format_stratum_summary(df: pd.DataFrame, stratum_df: pd.DataFrame) -> str:
     """Format per-stratum summary as readable table."""
     lines = []
 
-    # Stratum descriptions (single point of truth in benchmark/data/strata.py)
+    # Stratum descriptions (single point of truth in perbf/data/strata.py)
     from perbf.data.strata import STRATUM_NAMES_SHORT
     stratum_names = STRATUM_NAMES_SHORT
 
@@ -924,7 +941,7 @@ def generate_cd_plots(df: pd.DataFrame, output_dir: Path, alpha: float = 0.05) -
     # Note: R² removed - adjusted R² is sufficient for cross-dataset comparison
     metrics = [
         ('val_r2_adj', True, 'R² adjusted', []),
-        ('gap', False, 'Generalization Gap', ['ridge']),  # Exclude ridge (underfits)
+        ('gap', False, 'Generalization Gap', []),
     ]
 
     for col, higher_better, name, exclude_models in metrics:
@@ -1112,8 +1129,7 @@ def run_summary(df: pd.DataFrame, output_dir: Path, generate_cd: bool = False,
 def main():
     parser = argparse.ArgumentParser(description="Summarize benchmark results")
     parser.add_argument("results_dir", type=Path, help="Directory with joblib results")
-    parser.add_argument("--output-dir", type=Path, default=None,
-                        help="Output directory for summary files (default: <results_dir>/benchmark_summary)")
+    parser.add_argument("--output-dir", type=Path, help="Override output directory (disables dual with/wo_tabpfn mode)")
     parser.add_argument("--cd", action="store_true", help="Generate Critical Difference plots")
     parser.add_argument("--alpha", type=float, default=0.05, help="Significance level for CD test (default: 0.05)")
     parser.add_argument("--exclude-models", nargs='+', default=[], metavar='MODEL',
@@ -1142,28 +1158,74 @@ def main():
             print("No results remaining after exclusion!")
             return
 
-    # Output directory
-    output_dir = args.output_dir or (args.results_dir / "benchmark_summary")
-    print(f"Output directory: {output_dir}", flush=True)
+    # If --output-dir specified, run single summary (legacy mode)
+    if args.output_dir:
+        print(f"Single output mode: {args.output_dir}", flush=True)
+        lines = run_summary(df, args.output_dir, generate_cd=args.cd, alpha=args.alpha)
+        for line in lines:
+            print(line, flush=True)
 
-    lines = run_summary(df, output_dir, generate_cd=args.cd, alpha=args.alpha)
-    for line in lines:
+        # Save summary.md
+        md_path = args.output_dir / "summary.md"
+        md_path.write_text("\n".join(lines) + "\n")
+        print(f"\nSaved summary to {md_path}")
+
+        # Save detailed results if requested
+        if args.detailed:
+            print("Loading detailed results with hyperparameters...", flush=True)
+            df_detailed = load_results(args.results_dir, include_hyperparams=True)
+            detailed_path = args.output_dir / "results_detailed.csv"
+            df_detailed.to_csv(detailed_path, index=False)
+            print(f"Saved detailed results to {detailed_path}")
+
+        return
+
+    # Default mode: create benchmark_summary with with_tabpfn and wo_tabpfn subdirs
+    summary_dir = args.results_dir / "benchmark_summary"
+    has_tabpfn = 'tabpfn' in df['model'].values
+
+    # With TabPFN (if present)
+    if has_tabpfn:
+        print("\n" + "=" * 60, flush=True)
+        print("WITH TABPFN", flush=True)
+        print("=" * 60, flush=True)
+        with_dir = summary_dir / "with_tabpfn"
+        lines_with = run_summary(df, with_dir, generate_cd=args.cd, alpha=args.alpha,
+                                  label="with TabPFN")
+        for line in lines_with:
+            print(line, flush=True)
+
+        # Save summary.md
+        md_path = with_dir / "summary.md"
+        md_path.write_text("\n".join(lines_with) + "\n")
+        print(f"\nSaved summary to {md_path}")
+
+    # Without TabPFN (practical/CPU-deployable models)
+    print("\n" + "=" * 60, flush=True)
+    print("WITHOUT TABPFN (CPU-deployable models)", flush=True)
+    print("=" * 60, flush=True)
+    wo_dir = summary_dir / "wo_tabpfn"
+    df_wo_tabpfn = df[df['model'] != 'tabpfn']
+    lines_wo = run_summary(df_wo_tabpfn, wo_dir, generate_cd=args.cd, alpha=args.alpha,
+                           label="without TabPFN")
+    for line in lines_wo:
         print(line, flush=True)
 
     # Save summary.md
-    md_path = output_dir / "summary.md"
-    md_path.write_text("\n".join(lines) + "\n")
+    md_path = wo_dir / "summary.md"
+    md_path.write_text("\n".join(lines_wo) + "\n")
     print(f"\nSaved summary to {md_path}")
 
-    # Save detailed results if requested
+    # Save detailed results at the summary_dir level if requested
     if args.detailed:
         print("\nLoading detailed results with hyperparameters...", flush=True)
         df_detailed = load_results(args.results_dir, include_hyperparams=True)
-        detailed_path = output_dir / "results_detailed.csv"
+        detailed_path = summary_dir / "results_detailed.csv"
+        detailed_path.parent.mkdir(parents=True, exist_ok=True)
         df_detailed.to_csv(detailed_path, index=False)
         print(f"Saved detailed results to {detailed_path}")
 
-    print(f"\n\nAll outputs saved to: {output_dir}")
+    print(f"\n\nAll outputs saved to: {summary_dir}")
 
 
 if __name__ == "__main__":

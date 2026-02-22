@@ -99,7 +99,6 @@ def extract_summary_row(result: Dict[str, Any]) -> Dict[str, Any]:
     row['mae_val_std'] = result.get('mae_val_std')
     row['mape_val'] = result.get('mape_val')
     # Note: Residual stats and Lipschitz metrics removed 23Jan26
-    # Use benchmark/analysis/discontinuity_smoothness.py for detailed smoothness analysis
     # Timing
     row['total_time'] = result.get('total_time')
     row['train_time'] = result.get('train_time')

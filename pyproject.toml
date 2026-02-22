@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "perbf"
+version = "0.1.0"
+description = "Polynomial and ERBF benchmark for tabular regression"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "Gerber L."}
+]
+dependencies = [
+    "numpy>=1.21",
+    "pandas>=1.3",
+    "scikit-learn>=1.0",
+    "optuna>=3.0",
+    "xgboost>=1.5",
+    "joblib>=1.1",
+    "scipy>=1.7",
+]
+
+[project.optional-dependencies]
+tabpfn = ["tabpfn-client>=0.1"]
+dev = ["pytest>=7.0", "pytest-cov"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["perbf*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.yaml"]
