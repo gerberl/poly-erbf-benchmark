@@ -2,14 +2,14 @@ channels:
   - conda-forge
   - pytorch
 dependencies:
-  - python=3.12
-  - numpy>=2.0
-  - pandas>=2.0
-  - scikit-learn>=1.5
-  - scipy>=1.10
-  - xgboost>=2.0
-  - optuna>=4.0
-  - joblib>=1.3
+  - python=3.12.12
+  - numpy=2.3.5
+  - pandas=2.3.3
+  - scikit-learn=1.6.1
+  - scipy=1.17.0
+  - xgboost=3.1.3
+  - optuna=4.6.0
+  - joblib=1.5.3
   - matplotlib>=3.8
   - seaborn>=0.13
   - tqdm>=4.60
@@ -17,8 +17,7 @@ dependencies:
   - pytorch>=2.0
   - pip
   - pip:
-    - tabpfn>=6.0
-    - tabpfn-client>=0.0.9
+    - tabpfn==6.3.1
     - openml>=0.14
     - pmlb>=1.0
     - ucimlrepo>=0.0.6
