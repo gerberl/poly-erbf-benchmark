@@ -17,12 +17,12 @@ figures/            # Generated figures used in the paper
 ## Setup
 
 ```bash
-# Create environment
-micromamba create -f environment.yml
-micromamba activate poly_erbf_benchmark
+# Create environment (choose any name you like)
+micromamba create -n perbf -f environment.yml
+micromamba activate perbf
 
 # Install custom model packages
-pip install erbf poly-basis-ml tabular-fs
+pip install erbf poly-basis-ml
 
 # Verify
 python -c "from erbf import ERBFRegressor; print('OK')"
