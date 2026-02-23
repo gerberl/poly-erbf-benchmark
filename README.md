@@ -2,7 +2,6 @@
 
 Reproducibility repository for the paper: *Revisiting Chebyshev Polynomial and Anisotropic RBF Models for Tabular Regression*.
 
-This benchmark compares eight regression models -- including "forgotten" smooth-function families (Chebyshev polynomials, ellipsoidal RBF networks) -- against tree ensembles and deep learning on 55 tabular regression datasets. We evaluate both predictive accuracy (adjusted R²) and generalisation gap, stratified by expected target-function smoothness.
 
 ## Repository structure
 
@@ -17,9 +16,9 @@ figures/            # Generated figures used in the paper
 ## Setup
 
 ```bash
-# Create environment (choose any name you like)
-micromamba create -n perbf -f environment.yml
-micromamba activate perbf
+# Create environment
+micromamba create -n polyerbfbench -f environment.yml
+micromamba activate polyerbfbench
 
 # Install custom model packages
 pip install erbf poly-basis-ml
@@ -28,7 +27,7 @@ pip install erbf poly-basis-ml
 python -c "from erbf import ERBFRegressor; print('OK')"
 ```
 
-**Optional**: TabPFN requires a separate install (`pip install tabpfn`). The benchmark runs without it -- TabPFN is simply skipped.
+TabPFN requires a separate install (`pip install tabpfn`). The benchmark runs without it (TabPFN is simply skipped).
 
 ## Running the benchmark
 
@@ -87,12 +86,12 @@ Figures are written to `figures/`.
 
 Datasets are grouped into four strata by expected target-function smoothness:
 
-| Stratum | Domain | Expected best models |
-|---------|--------|---------------------|
-| S1 | Engineering / simulation | ERBF, Chebyshev |
+| Stratum | Domain |
+|---------|--------|
+| S1 | Engineering / simulation | 
 | S2 | Behavioural / social | Trees |
-| S3 | Physics / chemistry / life science | ERBF, Chebyshev |
-| S4 | Economic / pricing (threshold-heavy) | Trees |
+| S3 | Physics / chemistry / life science | 
+| S4 | Economic / pricing (threshold-heavy) | 
 
 ## Licence
 
