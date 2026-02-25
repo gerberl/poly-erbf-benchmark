@@ -37,17 +37,17 @@ All scripts add the repo root to `sys.path`, so `perbf/` is importable without i
 # Quick test (2 models x 2 datasets)
 python scripts/run_benchmark.py --test
 
-# Benchmark A: all models, preprocessed (max 50 features, 50k samples)
+# All models, preprocessed (max 50 features, 50k samples)
 python scripts/run_benchmark.py \
     --max-features 50 --max-samples 50000 \
-    --output-dir results/my_run_A --n-jobs 17
+    --output-dir results/my_run_A --n-jobs=-1
 
-# Benchmark B: scalable models only, full-scale data, no preprocessing
+# Full-scale data, no preprocessing
 python scripts/run_benchmark.py \
     --models ridge dt xgb chebypoly chebytree \
     --datasets diamonds nyc-taxi-green-dec-2016 particulate-matter-ukair-2017 \
                qsar_tid_11 superconduct friedman1_d100 \
-    --no-preprocess --output-dir results/my_run_B --n-jobs 17
+    --no-preprocess --output-dir results/my_run_B --n-jobs=-1
 
 # Run specific models or datasets
 python scripts/run_benchmark.py --models erbf chebypoly --datasets superconduct esol

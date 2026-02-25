@@ -208,7 +208,7 @@ def main():
     # Quick test mode
     if args.test:
         models = ['ridge', 'erbf']
-        datasets = datasets[:2]
+        datasets = ['concrete_strength', 'esol']
         n_trials_override = 5  # Uniform 5 for test
         no_tune = False
         print("TEST MODE: Running 2 models x 2 datasets with 5 trials")
