@@ -93,6 +93,20 @@ Datasets are grouped into four strata by expected target-function smoothness:
 | S3 | Physics / chemistry / life science | 
 | S4 | Economic / pricing (threshold-heavy) | 
 
+## Citation
+
+```bibtex
+@misc{gerber2026revisiting,
+  title={Revisiting Chebyshev Polynomial and Anisotropic RBF Models for Tabular Regression},
+  author={Luciano Gerber and Huw Lloyd},
+  year={2026},
+  eprint={2602.22422},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/2602.22422}
+}
+```
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
