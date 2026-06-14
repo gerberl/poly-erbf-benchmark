@@ -77,6 +77,7 @@ Figures are written to `figures/`.
 | `dt` | Decision tree | scikit-learn |
 | `rf` | Random forest | scikit-learn |
 | `xgb` | XGBoost | xgboost |
+| `ebm` | Explainable Boosting Machine | interpret |
 | `erbf` | Ellipsoidal RBF network | erbf |
 | `chebypoly` | Chebyshev polynomial regression | poly-basis-ml |
 | `chebytree` | Chebyshev model tree | poly-basis-ml |
@@ -89,7 +90,7 @@ Datasets are grouped into four strata by expected target-function smoothness:
 | Stratum | Domain |
 |---------|--------|
 | S1 | Engineering / simulation | 
-| S2 | Behavioural / social | Trees |
+| S2 | Behavioural / social |
 | S3 | Physics / chemistry / life science | 
 | S4 | Economic / pricing (threshold-heavy) | 
 
