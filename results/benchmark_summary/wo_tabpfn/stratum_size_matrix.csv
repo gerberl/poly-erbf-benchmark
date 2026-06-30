@@ -1,5 +1,5 @@
 stratum,Small (<1K),Medium (1K-10K),Large (>=10K)
 S1,erbf (2/3),xgb (3/8),chebypoly (2/2)
-S2,chebypoly (1/5),ebm (1/2),xgb (2/3)
+S2,chebypoly (2/5),ebm (1/2),xgb (2/3)
 S3,chebypoly (2/7),erbf (2/5),xgb (3/4)
-S4,rf (1/2),rf (2/4),xgb (4/10)
+S4,rf (1/2),rf (2/4),xgb (5/10)

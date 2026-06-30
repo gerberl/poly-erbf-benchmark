@@ -7,20 +7,35 @@ Provides reproducible access to datasets from public sources:
 - PMLB: Penn Machine Learning Benchmarks
 - MoleculeNet: Chemistry datasets (ESOL, FreeSolv, Lipophilicity)
 
+Datasets are split into:
+- **Pilot datasets**: For learning models, tuning hyperparameters, debugging
+- **Benchmark datasets**: For final evaluation (paper results)
+
 Usage:
     from benchmark_data import (
         load_dataset, list_datasets, get_dataset_info,
-        get_benchmark_datasets
+        get_pilot_datasets, get_benchmark_datasets
     )
 
     # List all datasets
     list_datasets()
+
+    # List only pilot datasets
+    list_datasets(pilot=True)
+    get_pilot_datasets()  # Returns list of names
 
     # Load a dataset with rich metadata
     X, y, meta = load_dataset('friedman1')
     meta.n_categorical           # Number of categorical features
     meta.categorical_cardinalities  # {col: cardinality}
     meta.feature_ranges          # {col: (min, max)}
+
+Pilot datasets (6 total):
+- S1 (Engineering): friedman1 - classic smooth synthetic
+- S1 (Engineering): friedman1_d100 - controlled high-D [high-d tag]
+- S3 (Life Sciences): diabetes - small medical
+- S3 (Life Sciences): esol - small chemistry
+- S4 (Economic): california_housing, synthetic_step - known discontinuities
 
 Created: 14Jan26
 """
@@ -159,7 +174,7 @@ DATASET_REGISTRY = {}
 
 
 def register_dataset(name: str, loader_func, source: str, stratum: str,
-                     description: str = "", url: str = "",
+                     description: str = "", url: str = "", pilot: bool = False,
                      **kwargs):
     """
     Register a dataset in the registry.
@@ -178,6 +193,9 @@ def register_dataset(name: str, loader_func, source: str, stratum: str,
         Brief description
     url : str
         Reference URL
+    pilot : bool
+        If True, this is a pilot/dev dataset for tuning and exploration.
+        If False (default), this is a main benchmark dataset for final evaluation.
     """
     DATASET_REGISTRY[name] = {
         'loader': loader_func,
@@ -185,6 +203,7 @@ def register_dataset(name: str, loader_func, source: str, stratum: str,
         'stratum': stratum,
         'description': description,
         'url': url,
+        'pilot': pilot,
         **kwargs
     }
 
@@ -242,16 +261,20 @@ def _load_diabetes():
 
 
 # Register sklearn datasets
+# PILOT: friedman1 - classic smooth synthetic for baseline understanding [USED for tuning]
 register_dataset(
     'friedman1', _load_friedman1, 'sklearn', 'S1',
     'Friedman #1: y = 10*sin(pi*x0*x1) + 20*(x2-0.5)^2 + 10*x3 + 5*x4',
     'https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_friedman1.html',
+    pilot=True, target_type='continuous',
 )
+# PILOT: friedman1_d100 - controlled high-D with known signal [NOT YET used for tuning]
 register_dataset(
     'friedman1_d100',
     lambda: _load_friedman1(n_samples=2000, n_noise_features=95),
-    'sklearn', 'S1',
+    'sklearn', 'S1',  # S1 (Engineering/Smooth) + [high-d] tag
     'Friedman #1 with 95 noise features (d=100 total)',
+    pilot=True, target_type='continuous',
 )
 # friedman2, friedman3 removed (24Jan26) - S1 over-represented (21→16 datasets)
 # register_dataset(
@@ -262,14 +285,19 @@ register_dataset(
 #     'friedman3', _load_friedman3, 'sklearn', 'S1',
 #     'Friedman #3: y = atan((x1*x2 - 1/(x1*x3))/x0)',
 # )
+# PILOT: california_housing - well-studied, medium size real dataset [USED for tuning]
+# S4 (not S2): Housing prices have threshold effects (location, size brackets)
 register_dataset(
     'california_housing', _load_california_housing, 'sklearn', 'S4',
     'California housing prices (median house value)',
     'https://scikit-learn.org/stable/datasets/real_world.html#california-housing-dataset',
+    pilot=True, target_type='continuous',
 )
+# PILOT: diabetes - small medical dataset (n=442, d=10) [USED extensively for tuning range determination]
 register_dataset(
     'diabetes', _load_diabetes, 'sklearn', 'S3',
     'Diabetes progression prediction (life sciences)',
+    pilot=True, target_type='continuous',  # integer-valued but 214 unique values, quantitative disease progression
 )
 
 
@@ -304,28 +332,34 @@ def _load_openml(data_id: int, target_col: str = None):
 # Strata: S1=Engineering, S2=Tabular, S3=Physics, S4=Threshold-heavy
 OPENML_NUMERICAL = {
     # Engineering/Control (S1)
-    'cpu_act': {'data_id': 44132, 'desc': 'CPU activity prediction', 'stratum': 'S1'},
-    'pol': {'data_id': 44133, 'desc': 'Telecommunications satisfaction (0-100%)', 'stratum': 'S2', 'ordinal': True, 'discrete': True},
-    'elevators': {'data_id': 44134, 'desc': 'Elevators control', 'stratum': 'S1'},
-    'Ailerons': {'data_id': 44137, 'desc': 'Ailerons control', 'stratum': 'S1'},
+    'cpu_act': {'data_id': 44132, 'desc': 'CPU activity prediction', 'stratum': 'S1',
+                'target_type': 'discrete-like', 'target_subtype': 'measurement'},  # 56 unique int values 0-99
+    'pol': {'data_id': 44133, 'desc': 'Telecommunications satisfaction (0-100%)', 'stratum': 'S2',
+            'ordinal': True, 'discrete': True, 'target_type': 'discrete', 'target_subtype': 'rating'},  # 11 unique values
+    'elevators': {'data_id': 44134, 'desc': 'Elevators control', 'stratum': 'S1',
+                  'target_type': 'discrete-like', 'target_subtype': 'measurement'},  # 61 unique float values
+    'Ailerons': {'data_id': 44137, 'desc': 'Ailerons control', 'stratum': 'S1',
+                 'target_type': 'discrete-like', 'target_subtype': 'measurement'},  # 35 unique float values
     # Behavioral/Social (S2)
-    'wine_quality': {'data_id': 44136, 'desc': 'Wine quality score', 'stratum': 'S2', 'ordinal': True, 'discrete': True},
-    'Bike_Sharing_Demand': {'data_id': 44142, 'desc': 'Bike sharing demand (counts)', 'stratum': 'S2', 'discrete': True},
+    'wine_quality': {'data_id': 44136, 'desc': 'Wine quality score', 'stratum': 'S2',
+                     'ordinal': True, 'discrete': True, 'target_type': 'discrete', 'target_subtype': 'rating'},  # 7 levels (3-9)
+    'Bike_Sharing_Demand': {'data_id': 44142, 'desc': 'Bike sharing demand (counts)', 'stratum': 'S2',
+                            'discrete': True, 'target_type': 'discrete-like', 'target_subtype': 'count'},  # 869 unique int counts
     # 'year' removed - OpenML data_id 4352 not found, not in HuggingFace benchmark either
     # Physical/Chemical/Life Sciences (S3)
-    'sulfur': {'data_id': 44145, 'desc': 'Sulfur recovery chemistry', 'stratum': 'S3'},
-    'superconduct': {'data_id': 44148, 'desc': 'Superconductor critical temp', 'stratum': 'S3'},
+    'sulfur': {'data_id': 44145, 'desc': 'Sulfur recovery chemistry', 'stratum': 'S3', 'target_type': 'continuous'},
+    'superconduct': {'data_id': 44148, 'desc': 'Superconductor critical temp', 'stratum': 'S3', 'target_type': 'continuous'},
     # Economic/Pricing (S4)
-    'nyc-taxi-green-dec-2016': {'data_id': 44143, 'desc': 'NYC taxi fares (pricing)', 'stratum': 'S4'},
+    'nyc-taxi-green-dec-2016': {'data_id': 44143, 'desc': 'NYC taxi fares (pricing)', 'stratum': 'S4', 'target_type': 'continuous'},
     # yprop_4_1 removed - 99% zeros, not standard regression (21Jan26)
     # Pricing/threshold-driven (S4)
     # 'houses' removed - duplicate of california_housing (sklearn)
-    'house_16H': {'data_id': 44139, 'desc': 'House prices 16H', 'stratum': 'S4'},
-    'diamonds': {'data_id': 44140, 'desc': 'Diamond prices', 'stratum': 'S4'},
-    'Brazilian_houses': {'data_id': 44141, 'desc': 'Brazilian house prices', 'stratum': 'S4'},
-    'house_sales': {'data_id': 44144, 'desc': 'House sales prices', 'stratum': 'S4'},
-    'medical_charges': {'data_id': 44146, 'desc': 'Medical charges (insurance)', 'stratum': 'S4'},
-    'MiamiHousing2016': {'data_id': 44147, 'desc': 'Miami housing prices', 'stratum': 'S4'},
+    'house_16H': {'data_id': 44139, 'desc': 'House prices 16H', 'stratum': 'S4', 'target_type': 'continuous'},
+    'diamonds': {'data_id': 44140, 'desc': 'Diamond prices', 'stratum': 'S4', 'target_type': 'continuous'},
+    'Brazilian_houses': {'data_id': 44141, 'desc': 'Brazilian house prices', 'stratum': 'S4', 'target_type': 'continuous'},
+    'house_sales': {'data_id': 44144, 'desc': 'House sales prices', 'stratum': 'S4', 'target_type': 'continuous'},
+    'medical_charges': {'data_id': 44146, 'desc': 'Medical charges (insurance)', 'stratum': 'S4', 'target_type': 'continuous'},
+    'MiamiHousing2016': {'data_id': 44147, 'desc': 'Miami housing prices', 'stratum': 'S4', 'target_type': 'continuous'},
 }
 
 for name, info in OPENML_NUMERICAL.items():
@@ -348,16 +382,17 @@ OPENML_CATEGORICAL = {
     # 'topo_2_1' removed - target is categorical ('DOWN'/'UP'), not regression
     # 'visualizing_soil' removed - 40-class classification (soil types 1-40), not regression (21Jan26)
     #   Note: was also wrong data_id (44158=KDDCup09_upselling binary), correct is 44056
-    'particulate-matter-ukair-2017': {'data_id': 42207, 'desc': 'UK PM10 air quality hourly', 'stratum': 'S3'},  # Fixed data_id (was 44162=COMPAS)
+    'particulate-matter-ukair-2017': {'data_id': 42207, 'desc': 'UK PM10 air quality hourly', 'stratum': 'S3', 'target_type': 'continuous'},  # Fixed data_id (was 44162=COMPAS)
     # Engineering (S1)
     # 'SGEMM_GPU_kernel_performance' removed - OpenML data_id 44163 not found
     # 'Mercedes_Benz_Greener_Manufacturing' removed - binary classification (2 classes), not regression
     # General tabular (S2)
-    'analcatdata_supreme': {'data_id': 504, 'desc': 'Supreme court decisions (log-counts)', 'stratum': 'S2', 'discrete': True},  # Log-transformed counts
+    'analcatdata_supreme': {'data_id': 504, 'desc': 'Supreme court decisions (log-counts)', 'stratum': 'S2',
+                            'discrete': True, 'target_type': 'discrete', 'target_subtype': 'log_count'},  # 10 unique values = log(int counts)
     # 'black_friday' removed - binary classification (2 classes), not regression
     # Insurance/threshold (S4)
     # NOTE: ID 44160 was wrong ("rl" classification dataset). Fixed to 42571 (real Allstate, 188K rows)
-    'Allstate_Claims_Severity': {'data_id': 42571, 'desc': 'Insurance claim severity (loss $)', 'stratum': 'S4'},
+    'Allstate_Claims_Severity': {'data_id': 42571, 'desc': 'Insurance claim severity (loss $)', 'stratum': 'S4', 'target_type': 'continuous'},
 }
 
 for name, info in OPENML_CATEGORICAL.items():
@@ -403,26 +438,31 @@ UCI_ENGINEERING = {
         'uci_id': 165,
         'stratum': 'S1',
         'desc': 'Concrete compressive strength (n=1030, d=8)',
+        'target_type': 'continuous',
     },
     'airfoil_noise': {
         'uci_id': 291,
         'stratum': 'S1',
         'desc': 'NASA airfoil self-noise (n=1503, d=5)',
+        'target_type': 'continuous',
     },
     'power_plant': {
         'uci_id': 294,
         'stratum': 'S1',
         'desc': 'Combined cycle power plant output (n=9568, d=4)',
+        'target_type': 'continuous',
     },
 }
 
 for name, info in UCI_ENGINEERING.items():
+    extra_kwargs = {k: v for k, v in info.items() if k not in ['uci_id', 'stratum', 'desc']}
     register_dataset(
         name,
         lambda uci_id=info['uci_id']: _load_uci(uci_id),
         'uci', info['stratum'],
         info['desc'],
-        f"https://archive.ics.uci.edu/dataset/{info['uci_id']}"
+        f"https://archive.ics.uci.edu/dataset/{info['uci_id']}",
+        **extra_kwargs
     )
 
 # Energy efficiency - heating load only (cooling is 97.6% correlated, essentially duplicate)
@@ -432,7 +472,8 @@ def _load_energy_efficiency_heating():
 register_dataset(
     'energy_efficiency_heating', _load_energy_efficiency_heating, 'uci', 'S1',
     'Building heating load prediction (n=768, d=8)',
-    'https://archive.ics.uci.edu/dataset/242'
+    'https://archive.ics.uci.edu/dataset/242',
+    target_type='continuous',
 )
 
 # forest_fires removed - 48% zeros, not standard regression (21Jan26)
@@ -446,7 +487,7 @@ register_dataset(
     'student_performance', _load_student_performance, 'uci', 'S2',
     'Portuguese student final grades (n=649, d=30) - survey/mixed features [ORDINAL: 17 grade levels 0-19]',
     'https://archive.ics.uci.edu/dataset/320',
-    ordinal=True, discrete=True
+    ordinal=True, discrete=True, target_type='discrete', target_subtype='rating',
 )
 
 # =============================================================================
@@ -536,7 +577,8 @@ def _load_power_grid():
 register_dataset(
     'power_grid_stability', _load_power_grid, 'uci', 'S4',  # Stability thresholds
     'Power grid stability margin prediction (n=10000, d=12)',
-    'https://archive.ics.uci.edu/dataset/471'
+    'https://archive.ics.uci.edu/dataset/471',
+    target_type='continuous',
 )
 
 # Yacht Hydrodynamics - REMOVED: n=308 < 500 minimum (20Jan26)
@@ -578,7 +620,7 @@ HF_GRINSZTAJN = {
         'config': 'reg_num_abalone',
         'stratum': 'S3',  # Life sciences - biological growth
         'desc': 'Abalone age prediction (ring counts, n=4177, d=8)',
-        'discrete': True,
+        'discrete': True, 'target_type': 'discrete', 'target_subtype': 'count',  # 28 unique integer values (1-29)
     },
     # 'seattlecrime6' removed - discretized target (29 values, multiples of 61), not continuous regression
     # 'Airlines_DepDelay_1M' removed - R²<0.05 for all models, essentially unpredictable noise
@@ -610,44 +652,52 @@ TABARENA_ADDITIONAL = {
         'data_id': 46954,
         'stratum': 'S3',  # Physics/Scientific
         'desc': 'QSAR fish toxicity prediction (n=907, d=7)',
+        'target_type': 'continuous',
     },
     'physiochemical_protein': {
         'data_id': 46949,
         'stratum': 'S3',  # Physics/Scientific
         'desc': 'Protein physicochemical properties (n=45730, d=10)',
+        'target_type': 'continuous',
     },
     # Physics/Scientific + [high-d] tag
     'qsar_tid_11': {
         'data_id': 46953,
         'stratum': 'S3',  # Physics/Scientific + [high-d]
         'desc': 'QSAR-TID-11 molecular descriptors (n=5742, d=1025)',
+        'target_type': 'continuous',
     },
     # Threshold-heavy (S4) - medical insurance has pricing tiers
     'healthcare_insurance': {
         'data_id': 46931,
         'stratum': 'S4',
         'desc': 'Healthcare insurance expenses (n=1338, d=7)',
+        'target_type': 'continuous',
     },
     # Tabular (S2)
     'food_delivery_time': {
         'data_id': 46928,
         'stratum': 'S2',
         'desc': 'Food delivery time prediction (n=45451, d=10)',
+        'target_type': 'discrete', 'target_subtype': 'count',  # 45 unique integer values (minutes)
     },
     'fiat_500_price': {
         'data_id': 46907,
         'stratum': 'S4',  # Car pricing has threshold effects
         'desc': 'Used Fiat 500 car prices (n=1538, d=8)',
+        'target_type': 'continuous',  # 222 unique values, prices in round hundreds
     },
 }
 
 for name, info in TABARENA_ADDITIONAL.items():
+    extra_kwargs = {k: v for k, v in info.items() if k not in ['data_id', 'stratum', 'desc']}
     register_dataset(
         name,
         lambda data_id=info['data_id']: _load_openml(data_id),
         'openml', info['stratum'],
         info['desc'],
-        f"https://www.openml.org/d/{info['data_id']}"
+        f"https://www.openml.org/d/{info['data_id']}",
+        **extra_kwargs
     )
 
 
@@ -670,13 +720,16 @@ def _load_pmlb(dataset_name: str):
 PMLB_DATASETS = {
     # General tabular (S2)
     # '1027_ESL' removed - n=488 < 500 minimum (20Jan26)
-    '1028_SWD': {'desc': 'SWD dataset (ordinal ratings)', 'stratum': 'S2', 'ordinal': True, 'discrete': True},
-    '1029_LEV': {'desc': 'LEV dataset (ordinal ratings)', 'stratum': 'S2', 'ordinal': True, 'discrete': True},
-    '1030_ERA': {'desc': 'ERA dataset (ordinal ratings)', 'stratum': 'S2', 'ordinal': True, 'discrete': True},
+    '1028_SWD': {'desc': 'SWD dataset (ordinal ratings)', 'stratum': 'S2', 'ordinal': True, 'discrete': True,
+                 'target_type': 'discrete', 'target_subtype': 'rating'},  # 4 levels (2-5)
+    '1029_LEV': {'desc': 'LEV dataset (ordinal ratings)', 'stratum': 'S2', 'ordinal': True, 'discrete': True,
+                 'target_type': 'discrete', 'target_subtype': 'rating'},  # 5 levels (0-4)
+    '1030_ERA': {'desc': 'ERA dataset (ordinal ratings)', 'stratum': 'S2', 'ordinal': True, 'discrete': True,
+                 'target_type': 'discrete', 'target_subtype': 'rating'},  # 9 levels (1-9)
     # '192_vineyard' removed - n=52 < 500 minimum (20Jan26)
     # '229_pwLinear' removed - n=200 < 500 minimum (20Jan26)
     # '294_satellite_image' removed - classification (6 soil types), not regression (20Jan26)
-    '4544_GeographicalOriginalofMusic': {'desc': 'Music geographic origin (d=117)', 'stratum': 'S2'},  # S2 + [high-d]
+    '4544_GeographicalOriginalofMusic': {'desc': 'Music geographic origin (d=117)', 'stratum': 'S2', 'target_type': 'continuous'},  # S2 + [high-d]
     # '519_vinnie' removed - n=380 < 500 minimum (20Jan26)
     # '523_analcatdata_neavote' removed - n=100 < 500 minimum (20Jan26)
     # '556_analcatdata_apnea2' removed - n=475 < 500 minimum (20Jan26)
@@ -685,8 +738,8 @@ PMLB_DATASETS = {
     # Engineering/Control systems (S1)
     # '197_cpu_act' removed - duplicate of cpu_act (OpenML)
     # '201_pol' removed - duplicate of pol (OpenML), same data with more features (20Jan26)
-    '215_2dplanes': {'desc': '2D planes synthetic', 'stratum': 'S1'},
-    '225_puma8NH': {'desc': 'Puma robot arm', 'stratum': 'S1'},
+    '215_2dplanes': {'desc': '2D planes synthetic', 'stratum': 'S1', 'target_type': 'continuous'},
+    '225_puma8NH': {'desc': 'Puma robot arm', 'stratum': 'S1', 'target_type': 'continuous'},
     # '227_cpu_small' removed - duplicate of cpu_act (same 8192 samples, 12 of 21 features) (25Jan26)
     # '228_elusage' removed - n=55 < 500 minimum (20Jan26)
     # '230_machine_cpu' removed - n=209 < 500 minimum (20Jan26)
@@ -697,15 +750,15 @@ PMLB_DATASETS = {
     # '573_cpu_act' removed - duplicate of cpu_act (OpenML)
     # Physics/Environmental (S3)
     # '210_cloud' removed - n=108 < 500 minimum (20Jan26)
-    '503_wind': {'desc': 'Irish wind speed from 12 met stations', 'stratum': 'S3'},  # Meteorology
-    '522_pm10': {'desc': 'PM10 pollution', 'stratum': 'S3'},  # Physics/Scientific
+    '503_wind': {'desc': 'Irish wind speed from 12 met stations', 'stratum': 'S3', 'target_type': 'continuous'},  # Meteorology
+    '522_pm10': {'desc': 'PM10 pollution', 'stratum': 'S3', 'target_type': 'continuous'},  # Physics/Scientific
     # '527_pm10' removed - doesn't exist in PMLB (527 is analcatdata_election2000)
-    '529_pollen': {'desc': 'Pollen count', 'stratum': 'S3'},  # Physics/Scientific
+    '529_pollen': {'desc': 'Pollen count', 'stratum': 'S3', 'target_type': 'continuous'},  # Physics/Scientific
     # '542_pollution' removed - n=60 < 500 minimum (20Jan26)
-    '547_no2': {'desc': 'NO2 pollution', 'stratum': 'S3'},  # Physics/Scientific
+    '547_no2': {'desc': 'NO2 pollution', 'stratum': 'S3', 'target_type': 'continuous'},  # Physics/Scientific
     # Pricing/threshold-driven (S4)
     # '195_auto_price' removed - deprecated in PMLB
-    '218_house_8L': {'desc': 'House prices 8L', 'stratum': 'S4'},
+    '218_house_8L': {'desc': 'House prices 8L', 'stratum': 'S4', 'target_type': 'continuous'},
     # '537_houses' removed - duplicate of california_housing (sklearn) and houses (OpenML)
     # '574_house_16H' removed - duplicate of house_16H (OpenML)
     # High-dimensional (S3)
@@ -958,27 +1011,32 @@ def _load_qm9_sample():
 # - FreeSolv, Lipophilicity: SMILES only - we compute 16 RDKit descriptors
 # - QM7, QM9: Have their own feature representations
 #
+# PILOT: esol - small, fast, has pre-computed features [NOT YET used for tuning]
 register_dataset(
-    'esol', _load_esol, 'moleculenet', 'S3',
+    'esol', _load_esol, 'moleculenet', 'S3',  # Physics/Scientific (chemistry)
     'ESOL: Aqueous solubility (Delaney, 1128 molecules) [pre-computed features]',
     'https://moleculenet.org/datasets-1',
+    pilot=True, target_type='continuous',
 )
 # FreeSolv: RDKit descriptors computed from SMILES (16 features)
 register_dataset(
     'freesolv', _load_freesolv, 'moleculenet', 'S3',  # Physics/Scientific (chemistry)
     'FreeSolv: Hydration free energy (642 molecules) [RDKit featurization]',
-    'https://moleculenet.org/datasets-1'
+    'https://moleculenet.org/datasets-1',
+    target_type='continuous',
 )
 # Lipophilicity: RDKit descriptors computed from SMILES (16 features)
 register_dataset(
     'lipophilicity', _load_lipophilicity, 'moleculenet', 'S3',  # Physics/Scientific (chemistry)
     'Lipophilicity: Octanol/water distribution (4200 molecules) [RDKit featurization]',
-    'https://moleculenet.org/datasets-1'
+    'https://moleculenet.org/datasets-1',
+    target_type='continuous',
 )
 register_dataset(
     'qm7', _load_qm7, 'moleculenet', 'S3',  # Physics/Scientific (quantum chemistry)
     'QM7: Atomization energies (7165 molecules) [Coulomb matrix features]',
-    'https://moleculenet.org/datasets-1'
+    'https://moleculenet.org/datasets-1',
+    target_type='continuous',
 )
 # qm9_sample removed - target leakage (gap = lumo - homo, features included both) (21Jan26)
 
@@ -1023,13 +1081,16 @@ def _make_piecewise_linear(n_samples: int = 2000, n_features: int = 5, noise: fl
     return pd.DataFrame(X, columns=cols), y
 
 
+# PILOT: synthetic_step - known discontinuities for understanding model limits [NOT YET used for tuning]
 register_dataset(
     'synthetic_step', _make_step_function, 'synthetic', 'S4',
     'Synthetic step function (discontinuous)',
+    pilot=True, target_type='continuous',
 )
 register_dataset(
     'synthetic_piecewise', _make_piecewise_linear, 'synthetic', 'S4',
     'Synthetic piecewise linear (ReLU-like)',
+    target_type='continuous',
 )
 
 
@@ -1059,6 +1120,7 @@ def _make_multi_threshold(n_samples: int = 750, n_features: int = 6, noise: floa
 register_dataset(
     'synthetic_multithreshold', _make_multi_threshold, 'synthetic', 'S4',
     'Synthetic multi-threshold (n=750, d=6) - S4 small',
+    target_type='continuous',
 )
 
 
@@ -1099,7 +1161,7 @@ FEYNMAN_DATASETS = {
     'feynman_gaussian': {
         'eq_name': 'feynman-i.6.20',
         'desc': 'Gaussian distribution: exp(-x²/2σ²)/σ√2π (d=2)',
-        'd': 2,
+        'd': 2, 'target_type': 'continuous',
     },
     # feynman_ideal_gas removed (24Jan26) - S1 over-represented (21→16 datasets)
     # 'feynman_ideal_gas': {
@@ -1111,7 +1173,7 @@ FEYNMAN_DATASETS = {
     'feynman_wave_interference': {
         'eq_name': 'feynman-i.29.16',
         'desc': 'Wave interference: √(A₁² + A₂² + 2A₁A₂cos(δ)) (d=4)',
-        'd': 4,
+        'd': 4, 'target_type': 'continuous',
     },
     # feynman_wave_superposition removed (24Jan26) - S1 over-represented (21→16 datasets)
     # 'feynman_wave_superposition': {
@@ -1128,13 +1190,15 @@ FEYNMAN_DATASETS = {
 }
 
 for name, info in FEYNMAN_DATASETS.items():
+    extra_kwargs = {k: v for k, v in info.items() if k not in ['eq_name', 'desc', 'd']}
     register_dataset(
         name,
         lambda eq=info['eq_name']: _load_feynman_equation(eq),
         'huggingface',
         'S1',  # Simulation - equation-generated data
         info['desc'],
-        'https://huggingface.co/datasets/yoshitomo-matsubara/srsd-feynman_hard'
+        'https://huggingface.co/datasets/yoshitomo-matsubara/srsd-feynman_hard',
+        **extra_kwargs
     )
 
 
@@ -1142,7 +1206,8 @@ for name, info in FEYNMAN_DATASETS.items():
 # PUBLIC API
 # =============================================================================
 
-def list_datasets(stratum: str = None, source: str = None) -> pd.DataFrame:
+def list_datasets(stratum: str = None, source: str = None,
+                  pilot: bool = None) -> pd.DataFrame:
     """
     List available datasets with their properties.
 
@@ -1152,6 +1217,9 @@ def list_datasets(stratum: str = None, source: str = None) -> pd.DataFrame:
         Filter by stratum (S1-S4)
     source : str, optional
         Filter by source (sklearn, openml, pmlb, moleculenet, synthetic)
+    pilot : bool, optional
+        If True, show only pilot datasets. If False, show only benchmark datasets.
+        If None (default), show all.
 
     Returns
     -------
@@ -1163,16 +1231,20 @@ def list_datasets(stratum: str = None, source: str = None) -> pd.DataFrame:
             continue
         if source and info['source'] != source:
             continue
+        if pilot is not None and info.get('pilot', False) != pilot:
+            continue
         rows.append({
             'name': name,
             'source': info['source'],
             'stratum': info['stratum'],
+            'pilot': info.get('pilot', False),
             'description': info['description'][:50] + '...' if len(info['description']) > 50 else info['description'],
         })
 
     df = pd.DataFrame(rows)
     if len(df) > 0:
-        df = df.sort_values(['stratum', 'source', 'name']).reset_index(drop=True)
+        df = df.sort_values(['pilot', 'stratum', 'source', 'name'],
+                           ascending=[False, True, True, True]).reset_index(drop=True)
     return df
 
 
@@ -1278,7 +1350,7 @@ def load_multiple(names: list, compute_meta: bool = True) -> dict:
     return results
 
 
-def get_stratum_datasets(stratum: str) -> list:
+def get_stratum_datasets(stratum: str, pilot: bool = None) -> list:
     """
     Get list of dataset names for a stratum.
 
@@ -1286,9 +1358,35 @@ def get_stratum_datasets(stratum: str) -> list:
     ----------
     stratum : str
         Stratum identifier (S1-S4)
+    pilot : bool, optional
+        If True, return only pilot datasets. If False, only benchmark.
+        If None (default), return all.
+    """
+    results = []
+    for name, info in DATASET_REGISTRY.items():
+        if info['stratum'] != stratum:
+            continue
+        if pilot is not None and info.get('pilot', False) != pilot:
+            continue
+        results.append(name)
+    return results
+
+
+def get_pilot_datasets() -> list:
+    """
+    Get list of pilot/dev dataset names.
+
+    Pilot datasets are for:
+    - Learning new models (TabPFN, etc.)
+    - Developing Optuna hyperparameter search spaces
+    - Debugging pipelines
+    - Quick iteration
+
+    Results on pilot datasets should be reported separately from
+    main benchmark results to avoid contamination.
     """
     return [name for name, info in DATASET_REGISTRY.items()
-            if info['stratum'] == stratum]
+            if info.get('pilot', False)]
 
 
 def get_ordinal_datasets() -> list:
@@ -1335,7 +1433,13 @@ def is_discrete_dataset(name: str) -> bool:
 
 
 def get_benchmark_datasets() -> list:
-    """Get list of all registered dataset names."""
+    """
+    Get list of all benchmark dataset names.
+
+    Returns all registered datasets. The 'pilot' flag is just a label
+    indicating datasets used for development/tuning - it does not
+    exclude them from the benchmark.
+    """
     return list(DATASET_REGISTRY.keys())
 
 
@@ -1343,18 +1447,25 @@ def get_benchmark_datasets_by_size(
     n_min: int = 500,
     n_max: int = 10000,
     dn_ratio_max: float = 0.1,
+    include_pilot: bool = True,
 ) -> list:
     """
     Get benchmark datasets filtered by size criteria.
 
+    Based on Grinsztajn et al. (2022) methodology:
+    - n_min/n_max: Sample size bounds
+    - dn_ratio_max: Maximum d/n ratio (avoids high-d underdetermined problems)
+
     Parameters
     ----------
     n_min : int, default=500
-        Minimum number of samples.
+        Minimum number of samples. Grinsztajn used 3000, we relax to 500.
     n_max : int, default=10000
         Maximum number of samples. Use 50000 for large-scale benchmarks.
     dn_ratio_max : float, default=0.1
-        Maximum features/samples ratio.
+        Maximum features/samples ratio. Grinsztajn used 0.1.
+    include_pilot : bool, default=True
+        Whether to include pilot datasets that meet criteria.
 
     Returns
     -------
@@ -1363,8 +1474,14 @@ def get_benchmark_datasets_by_size(
 
     Examples
     --------
+    >>> # MacBook Air benchmark (~38 datasets)
     >>> datasets = get_benchmark_datasets_by_size(n_min=500, n_max=10000)
+
+    >>> # Linux high-spec benchmark
     >>> datasets = get_benchmark_datasets_by_size(n_min=500, n_max=50000)
+
+    >>> # Strict Grinsztajn criteria
+    >>> datasets = get_benchmark_datasets_by_size(n_min=3000, n_max=10000)
     """
     # Use cache file for fast lookup
     cache_path = Path(__file__).parent / 'dataset_sizes_cache.csv'
@@ -1377,12 +1494,17 @@ def get_benchmark_datasets_by_size(
             (df['n_samples'] <= n_max) &
             ((df['n_features'] / df['n_samples']) < dn_ratio_max)
         )
+        if not include_pilot:
+            mask &= ~df['pilot']
         filtered = df[mask].sort_values('n_samples')
         return filtered['dataset'].tolist()
     else:
         # Fallback: load metadata for each dataset (slower)
         results = []
         for name in DATASET_REGISTRY:
+            info = DATASET_REGISTRY[name]
+            if not include_pilot and info.get('pilot', False):
+                continue
             try:
                 _, _, meta = load_dataset(name)
                 n, d = meta.n_samples, meta.n_features
@@ -1520,7 +1642,7 @@ def get_stress_high_d_datasets() -> list:
 # 4 datasets per stratum where possible
 PARTIAL_BENCHMARK_DATASETS = {
     'S1_smooth': [
-        'friedman1',        # Classic smooth synthetic
+        'friedman1',        # Pilot - classic smooth
         'friedman2',        # sqrt/atan composition
         'friedman3',        # atan composition
     ],
@@ -1530,15 +1652,15 @@ PARTIAL_BENCHMARK_DATASETS = {
         'abalone',             # HuggingFace - marine biology
     ],
     'S3_physics': [
-        'esol',                # Solubility (chemistry)
+        'esol',                # Pilot - solubility (chemistry)
         'freesolv',            # Hydration free energy
         'lipophilicity',       # LogD
         'qm7',                 # Atomization energy
         'sulfur',              # Sulfur recovery
     ],
     'S4_threshold': [
-        'california_housing',  # Housing prices (threshold effects)
-        'synthetic_step',      # Step function
+        'california_housing',  # Pilot - housing prices (threshold effects)
+        'synthetic_step',      # Pilot - step function
         'synthetic_piecewise', # ReLU-like
         'diamonds',            # OpenML - diamond prices
         'houses',              # OpenML - house prices
@@ -1641,12 +1763,12 @@ def regenerate_metadata_cache(output_path: str = None, verbose: bool = True) -> 
     Regenerate dataset metadata cache from DATASET_REGISTRY.
 
     Loads each dataset in the registry and extracts metadata (n_samples, n_features,
-    stratum, source, ordinal) into a CSV cache for fast lookups.
+    stratum, source, pilot, ordinal) into a CSV cache for fast lookups.
 
     Parameters
     ----------
     output_path : str, optional
-        Path to save CSV. Default: benchmark/data/dataset_sizes_cache.csv
+        Path to save CSV. Default: perbf/data/dataset_sizes_cache.csv
     verbose : bool
         Print progress
 
@@ -1678,6 +1800,7 @@ def regenerate_metadata_cache(output_path: str = None, verbose: bool = True) -> 
                 'n_features': meta.n_features,
                 'stratum': meta.stratum,
                 'source': meta.source,
+                'pilot': info.get('pilot', False),
                 'ordinal': info.get('ordinal', False),
                 'discrete': info.get('discrete', False),
             })

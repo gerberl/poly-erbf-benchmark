@@ -3,6 +3,7 @@
 from .loader import (
     load_dataset,
     list_datasets,
+    get_pilot_datasets,
     get_benchmark_datasets,
     DatasetMeta,
     STRATA,
@@ -12,6 +13,7 @@ from .loader import (
 __all__ = [
     'load_dataset',
     'list_datasets',
+    'get_pilot_datasets',
     'get_benchmark_datasets',
     'DatasetMeta',
     'STRATA',

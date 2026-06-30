@@ -3,14 +3,14 @@
 Regenerate dataset metadata cache from DATASET_REGISTRY.
 
 This script loads all datasets in the registry and extracts metadata
-(n_samples, n_features, stratum, source, ordinal) into a CSV cache
+(n_samples, n_features, stratum, source, pilot, ordinal) into a CSV cache
 for fast lookups by get_benchmark_datasets_by_size() and other functions.
 
 Usage:
     python scripts/regenerate_metadata_cache.py
 
 Output:
-    benchmark/data/dataset_sizes_cache.csv
+    perbf/data/dataset_sizes_cache.csv
 
 Run this whenever:
 - New datasets are added to DATASET_REGISTRY
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     print("=" * 70)
     print()
     print(f"Total datasets: {len(df)}")
-    print(f"Output: benchmark/data/dataset_sizes_cache.csv")
+    print(f"Output: perbf/data/dataset_sizes_cache.csv")
     print()
     print("Size distribution:")
     print(df['n_samples'].describe().to_string())

@@ -10,12 +10,12 @@ ARCHITECTURE - Single Points of Truth:
 
 2. loader.py:
    - Dataset REGISTRATIONS (the PRIMARY source of truth for datasets)
-   - Each dataset's: stratum, ordinal flag, description, loader function
+   - Each dataset's: stratum, ordinal flag, pilot flag, description, loader function
    - To add/modify/remove a dataset, edit loader.py
 
 3. dataset_sizes_cache.csv:
    - DERIVED cache, regenerated from loader.py via regenerate_metadata_cache()
-   - Contains: dataset, n_samples, n_features, stratum, source, ordinal
+   - Contains: dataset, n_samples, n_features, stratum, source, pilot, ordinal
    - Used by summarize_benchmark.py for fast lookups
    - Regenerate after changing loader.py: `python -c "from perbf.data.loader import regenerate_metadata_cache; regenerate_metadata_cache()"`
 

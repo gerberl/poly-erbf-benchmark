@@ -346,6 +346,63 @@ def prefilter_combined(X, y, spearman_threshold=0.05, spearman_bottom_pctl=30.0,
     return keep, debug_info
 
 
+def apply_fold_feature_selection(X_trainval, X_test, y_trainval,
+                                 feature_selection_config):
+    """
+    Per-fold feature selection: Spearman prefilter then MI k-best, fit on
+    trainval only and applied to test. Deterministic given random_state.
+
+    Shared by the benchmark (run_single_fold) and the prediction-stability
+    script so both refit models on an identical feature space. Returns
+    (X_trainval, X_test, fold_fs_info); a None config is a no-op.
+    """
+    fold_fs_info = {}
+    if feature_selection_config is None:
+        return X_trainval, X_test, fold_fs_info
+
+    fs_rs = feature_selection_config.get('random_state', 42)
+    d_before = X_trainval.shape[1]
+
+    # Spearman prefilter (only on numeric columns, only if d >= d_min)
+    prefilter_enabled = feature_selection_config.get('prefilter', False)
+    prefilter_d_min = feature_selection_config.get('prefilter_d_min', 25)
+    if prefilter_enabled and d_before >= prefilter_d_min and hasattr(X_trainval, 'select_dtypes'):
+        num_cols = X_trainval.select_dtypes(exclude=['category', 'object']).columns.tolist()
+        cat_cols = X_trainval.select_dtypes(include=['category', 'object']).columns.tolist()
+        if num_cols:
+            kept_num, _ = prefilter_combined(
+                X_trainval[num_cols], y_trainval,
+                spearman_threshold=feature_selection_config.get('prefilter_threshold', 0.05),
+                spearman_bottom_pctl=feature_selection_config.get('spearman_bottom_pctl', 30),
+                mi_top_pctl=feature_selection_config.get('mi_top_pctl', 30),
+                random_state=fs_rs,
+            )
+            kept_cols = cat_cols + kept_num
+            X_trainval = X_trainval[kept_cols]
+            X_test = X_test[kept_cols]
+            fold_fs_info['prefilter_applied'] = True
+            fold_fs_info['n_after_prefilter'] = X_trainval.shape[1]
+
+    # MI k-best feature selection
+    max_features = feature_selection_config.get('max_features', None)
+    d_current = X_trainval.shape[1]
+    if max_features is not None and d_current > max_features:
+        X_trainval, selected_cols, _ = select_k_best_mi(
+            X_trainval, y_trainval, k=max_features, random_state=fs_rs
+        )
+        # Apply same column selection to test
+        if hasattr(X_test, 'iloc'):
+            X_test = X_test[selected_cols]
+        else:
+            X_test = X_test[:, [X_trainval.columns.get_loc(c) for c in selected_cols]]
+        fold_fs_info['mi_kbest_applied'] = True
+        fold_fs_info['n_after_mi_kbest'] = X_trainval.shape[1]
+
+    fold_fs_info['n_features_before'] = d_before
+    fold_fs_info['n_features_after'] = X_trainval.shape[1]
+    return X_trainval, X_test, fold_fs_info
+
+
 __all__ = [
     'FoldPreprocessor',
     'preprocess_fold',
@@ -355,4 +412,5 @@ __all__ = [
     'select_k_best_spearman',
     'prefilter_by_spearman',
     'prefilter_combined',
+    'apply_fold_feature_selection',
 ]

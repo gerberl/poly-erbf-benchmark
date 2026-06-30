@@ -13,8 +13,8 @@ Usage:
     from perbf.tuning.optuna_cv import tune_model, get_best_model, MODEL_FACTORIES
     from perbf.tuning.optuna_cv import nested_cv_tune_and_evaluate
 
-    # Tune on a dataset
-    study = tune_model('rf', X, y, n_trials=50)
+    # Tune on pilot dataset
+    study = tune_model('rf', X_pilot, y_pilot, n_trials=50)
     best_model = get_best_model('rf', study)
 
     # Or full nested CV with preprocessing
@@ -49,7 +49,7 @@ from sklearn.linear_model import Ridge
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 
-from perbf.preprocessing import FoldPreprocessor
+from perbf.preprocessing import FoldPreprocessor, apply_fold_feature_selection
 from perbf.evaluation.metrics import adjusted_r2, rmse, mae, mape
 from perbf.analysis.model_complexity import extract_model_info
 
@@ -91,7 +91,7 @@ def rf_factory(trial: optuna.Trial) -> RandomForestRegressor:
     - max_depth: 3-20 (expanded from 15 for complex datasets)
     - max_features: 0.3, 0.5, 0.7, or sqrt (expanded for more flexibility)
 
-    Fixed (min_samples_leaf almost always at minimum in tuning runs):
+    Fixed (based on relaxed38 benchmark: min_samples_leaf almost always at minimum):
     - min_samples_leaf=0.005: chosen ~100% of time, no need to tune
     """
     return RandomForestRegressor(
@@ -298,6 +298,47 @@ def chebyshev_modeltree_factory(trial: optuna.Trial):
 
 
 
+def ebm_factory(trial: optuna.Trial):
+    """Create Explainable Boosting Machine with Optuna hyperparameters.
+
+    EBM is a glass-box GAM using boosted trees per feature, producing smooth
+    additive models.  Added 24Mar26 in response to reviewer feedback (R2#5).
+
+    Searches over (3 params):
+    - max_bins: discretisation granularity [128, 256]
+    - learning_rate: boosting step size [0.01, 0.1]
+    - min_samples_leaf: regularisation / smoothness knob [2, 4, 10]
+
+    Fixed:
+    - interactions=0: pure additive (pairwise terms too expensive for nested CV)
+    - outer_bags=4: reduced from default 14 for tractability; our 5-fold CV
+      already provides evaluation stability
+    - inner_bags=0: default, avoids cost multiplier
+    - max_leaves=3: default, keeps shape functions smooth
+    - max_rounds=5000 with early_stopping_rounds=50: aggressive early stopping
+
+    Cost rationale (24Mar26): outer_bags=14 + max_rounds=50000 + interactions
+    made nested CV infeasible (~10K fits per dataset). Current settings ~30-50x
+    cheaper while preserving EBM's additive-model strengths.
+    """
+    from interpret.glassbox import ExplainableBoostingRegressor
+
+    return ExplainableBoostingRegressor(
+        interactions=0,
+        max_bins=trial.suggest_categorical('max_bins', [128, 256]),
+        learning_rate=trial.suggest_float('learning_rate', 0.01, 0.1, log=True),
+        min_samples_leaf=trial.suggest_categorical('min_samples_leaf', [2, 4, 10]),
+        max_leaves=3,
+        outer_bags=4,
+        inner_bags=0,
+        max_rounds=5000,
+        early_stopping_rounds=50,
+        early_stopping_tolerance=1e-4,
+        n_jobs=1,  # Single-threaded; parallelism at outer fold level
+        random_state=42,
+    )
+
+
 # Registry of model factories
 # Note: erbfb removed 21Jan26 - see notes-plans/erbfb_removal_rationale_21jan26.md
 MODEL_FACTORIES: Dict[str, Callable] = {
@@ -311,6 +352,7 @@ MODEL_FACTORIES: Dict[str, Callable] = {
     'chebypoly': chebyshev_poly_factory,
     # 'cheby_td': chebyshev_td_factory,  # 30Jan26: experimental, not in main benchmark
     'chebytree': chebyshev_modeltree_factory,
+    'ebm': ebm_factory,
 }
 
 # Models that need early stopping (special handling)
@@ -322,7 +364,7 @@ NO_TUNING_MODELS = {'tabpfn', 'tabpfnv2'}
 # Proportional trial counts based on search space complexity
 # Formula: n_trials = max(20, 10 * n_continuous + 5 * n_categorical)
 # See notes-plans/search_space_simplification_17jan26.md for rationale
-# Updated 20Jan26: reduced RF and ERBFB based on benchmark analysis
+# Updated 20Jan26: reduced RF and ERBFB based on relaxed38 benchmark analysis
 # Updated 25Jan26: increased chebypoly for extended interaction search space
 MODEL_TRIAL_COUNTS = {
     'ridge': 20,      # 1 param
@@ -335,6 +377,7 @@ MODEL_TRIAL_COUNTS = {
     'chebytree': 30,  # 4 params: complexity, max_depth, min_samples_leaf, alpha (ElasticNet removed 20Jan26)
     'tabpfn': 0,      # No tuning needed
     'tabpfnv2': 0,    # No tuning needed (v2 weights)
+    'ebm': 15,        # 3 params: max_bins, learning_rate, min_samples_leaf (24Mar26)
 }
 
 # Default scaling by model type
@@ -352,13 +395,14 @@ DEFAULT_SCALE_MAP = {
     'chebypoly': False,  # Internal MinMaxScaler
     # 'cheby_td': False,   # Internal MinMaxScaler
     'chebytree': False,  # Internal MinMaxScaler
+    'ebm': False,  # Internal binning handles feature scaling
 }
 
 
 # =============================================================================
 # TUNING UTILITIES
 # =============================================================================
-# Note: extract_model_info() moved to benchmark/analysis/model_complexity.py (23Jan26)
+# Note: extract_model_info() moved to perbf/analysis/model_complexity.py (23Jan26)
 
 def create_regression_objective(
     X: np.ndarray,
@@ -367,13 +411,19 @@ def create_regression_objective(
     n_splits: int = 5,
     scale: bool = True,
     random_state: int = 42,
-    early_stopping: bool = False
+    early_stopping: bool = False,
+    feature_selection_config: Optional[Dict[str, Any]] = None,
 ) -> Callable:
     """
     Create Optuna objective for regression with fold-aware pruning.
 
     Uses FoldPreprocessor to properly fit TargetEncoder + Imputer + Scaler
-    on each inner fold's training data only (no leakage).
+    on each inner fold's training data only (no leakage). When
+    feature_selection_config is provided, the Spearman prefilter + MI k-best
+    selection is also refit within every inner training split (fully nested CV,
+    29Jun26), so inner-validation targets never influence feature selection or
+    hyperparameter choice. Default None preserves the prior behaviour (no
+    inner-fold FS), so tune_model() is unaffected.
 
     Parameters
     ----------
@@ -403,23 +453,38 @@ def create_regression_objective(
     # For cv.split, need array-like
     X_for_split = X.values if is_dataframe else np.asarray(X)
 
+    # Build the inner-fold cache ONCE. Feature selection (if configured) and
+    # FoldPreprocessor are both deterministic given the seed, so they are
+    # identical across trials; caching them avoids n_trials * n_splits redundant
+    # MI computations. Making FS part of this per-inner-fold step (29Jun26) is
+    # what makes the nested CV fully nested: the Spearman prefilter + MI k-best
+    # refit on each inner training split, so inner-validation targets no longer
+    # leak into FS or hyperparameter selection.
+    inner_folds = []
+    for train_idx, val_idx in cv.split(X_for_split):
+        # Handle both DataFrame and ndarray slicing
+        if is_dataframe:
+            X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
+        else:
+            X_train, X_val = X_for_split[train_idx], X_for_split[val_idx]
+        y_train, y_val = y_arr[train_idx], y_arr[val_idx]
+
+        # Per-inner-fold feature selection (fit on inner-train only; no-op if None)
+        X_train, X_val, _ = apply_fold_feature_selection(
+            X_train, X_val, y_train, feature_selection_config
+        )
+
+        # Preprocess: fit on train, transform both (no leakage)
+        prep = FoldPreprocessor(scale=scale)
+        X_train_t = prep.fit_transform(X_train, y_train)
+        X_val_t = prep.transform(X_val)
+        inner_folds.append((X_train_t, X_val_t, y_train, y_val))
+
     def objective(trial: optuna.Trial) -> float:
         model = model_factory(trial)
         scores = []
 
-        for fold, (train_idx, val_idx) in enumerate(cv.split(X_for_split)):
-            # Handle both DataFrame and ndarray slicing
-            if is_dataframe:
-                X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
-            else:
-                X_train, X_val = X_for_split[train_idx], X_for_split[val_idx]
-            y_train, y_val = y_arr[train_idx], y_arr[val_idx]
-
-            # Preprocess: fit on train, transform both (no leakage)
-            prep = FoldPreprocessor(scale=scale)
-            X_train_t = prep.fit_transform(X_train, y_train)
-            X_val_t = prep.transform(X_val)
-
+        for fold, (X_train_t, X_val_t, y_train, y_val) in enumerate(inner_folds):
             # Fit model
             if early_stopping and hasattr(model, 'fit'):
                 # XGBoost with early stopping (callback set in factory)
@@ -664,6 +729,19 @@ def get_default_model(model_name: str, params: Optional[Dict[str, Any]] = None):
             min_samples_leaf=params.get('min_samples_leaf', 0.05),
         )
 
+    if model_name == 'ebm':
+        from interpret.glassbox import ExplainableBoostingRegressor
+        return ExplainableBoostingRegressor(
+            max_bins=params.get('max_bins', 1024),
+            learning_rate=params.get('learning_rate', 0.04),
+            max_leaves=params.get('max_leaves', 2),
+            interactions=params.get('interactions', 5),
+            max_rounds=50000,
+            early_stopping_rounds=100,
+            n_jobs=1,
+            random_state=42,
+        )
+
     raise ValueError(f"Unknown model: {model_name}")
 
 
@@ -686,20 +764,29 @@ def _run_single_outer_fold(
     no_tune: bool = False,
     default_params: Optional[Dict[str, Any]] = None,
     save_model: bool = True,
+    feature_selection_config: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Run a single outer fold (for parallel execution).
 
-    Preprocessing is done properly:
-    - Outer fold: fit FoldPreprocessor on trainval, transform test
-    - Inner folds: each inner fold fits its own FoldPreprocessor (handled by create_regression_objective)
-    - Final refit: uses outer fold's preprocessor
+    Preprocessing is done properly (fully nested feature selection, 29Jun26):
+    - Inner folds (tuning): each inner fold refits its own feature selection
+      (Spearman prefilter + MI k-best) AND FoldPreprocessor on inner-train only
+      (handled by create_regression_objective via feature_selection_config).
+    - Outer fold: feature selection refit on the full trainval, then
+      FoldPreprocessor fit on trainval, transform test -- applied AFTER tuning so
+      the final model's feature space = FS(full outer-trainval).
+    - Final refit: uses the outer fold's feature selection + preprocessor.
+
+    Feature selection is always fit on training data only; the outer test fold and
+    the inner-validation folds are held out from it.
 
     X can be DataFrame (preserves categoricals) or ndarray.
     """
     import time
 
     t0 = time.time()
+    label = f"{model_name}|fold{fold_idx}"
 
     # Handle both DataFrame and ndarray slicing
     if hasattr(X, 'iloc'):
@@ -710,12 +797,9 @@ def _run_single_outer_fold(
         X_test = X[test_idx]
     y_trainval, y_test = y_arr[trainval_idx], y_arr[test_idx]
 
-    # Outer fold preprocessing: fit on trainval only
-    outer_prep = FoldPreprocessor(scale=scale)
-    X_trainval_t = outer_prep.fit_transform(X_trainval, y_trainval)
-    X_test_t = outer_prep.transform(X_test)
-
-    # Inner loop: tune on trainval (inner folds handle their own preprocessing)
+    # Inner loop: tune on the RAW trainval. Feature selection + outer-fold
+    # preprocessing are applied AFTER tuning (see below); the inner folds refit
+    # their own feature selection so the nested CV is fully nested (29Jun26).
     if model_name in NO_TUNING_MODELS:
         best_params = {}
         model = get_default_model(model_name)
@@ -729,13 +813,15 @@ def _run_single_outer_fold(
         model_factory = MODEL_FACTORIES[model_name]
         early_stopping = model_name in EARLY_STOPPING_MODELS
 
-        # Inner CV uses raw trainval - each inner fold fits its own preprocessor
+        # Inner CV uses raw trainval - each inner fold refits its own feature
+        # selection (via feature_selection_config) and FoldPreprocessor.
         objective = create_regression_objective(
             X_trainval, y_trainval, model_factory,
             n_splits=inner_splits,
             scale=scale,  # Inner folds do their own preprocessing
             random_state=random_state + fold_idx,
-            early_stopping=early_stopping
+            early_stopping=early_stopping,
+            feature_selection_config=feature_selection_config,
         )
 
         study = optuna.create_study(
@@ -757,8 +843,21 @@ def _run_single_outer_fold(
         # Create model with best params
         model = get_best_model(model_name, study)
 
+    # Feature selection + outer-fold preprocessing, applied AFTER tuning so the
+    # final model's feature space = FS(full outer-trainval) -- identical to the
+    # pre-29Jun26 results. Inner folds did their own FS during tuning above.
+    # apply_fold_feature_selection is fit on trainval only, applied to test; a
+    # None config is a no-op. Runs for all paths (tabpfn / no-tune / tuned / xgb).
+    X_trainval, X_test, fold_fs_info = apply_fold_feature_selection(
+        X_trainval, X_test, y_trainval, feature_selection_config
+    )
+    outer_prep = FoldPreprocessor(scale=scale)
+    X_trainval_t = outer_prep.fit_transform(X_trainval, y_trainval)
+    X_test_t = outer_prep.transform(X_test)
+
     # Tuning time (includes preprocessing overhead, but that's minimal)
     tune_time = time.time() - t0
+    print(f"  {label}: tuned {tune_time:.0f}s", flush=True)
 
     # Refit on full trainval (using outer fold's preprocessed data), evaluate on test
     # Separate timing for train and predict
@@ -850,6 +949,10 @@ def _run_single_outer_fold(
         'time': elapsed,  # Total fold time (tune + train + predict + metrics)
     }
 
+    # Per-fold feature selection info (if applied)
+    if fold_fs_info:
+        result['feature_selection'] = fold_fs_info
+
     # Optionally store fitted model (skip for large models like TabPFN)
     if save_model:
         result['model'] = model
@@ -875,16 +978,20 @@ def nested_cv_tune_and_evaluate(
     no_tune: bool = False,
     default_params: Optional[Dict[str, Any]] = None,
     save_model: bool = True,
+    feature_selection_config: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Full nested CV: tune hyperparameters per outer fold, evaluate on held-out test.
 
     This is the "gold standard" approach that gives unbiased evaluation without
-    requiring separate tuning/evaluation datasets.
+    requiring separate pilot/benchmark datasets.
 
     Preprocessing:
-    - Dataset-level preprocessing (NA, subsample, prefilter, dim reduction) should be
-      done BEFORE calling this function (see batch_runner.preprocess_dataset)
+    - Feature selection (Spearman prefilter, MI k-best) is applied per-fold if
+      feature_selection_config is provided (fit on trainval, transform test).
+      Added 24Mar26 to fix test information leakage (R2#1, R4#1).
+    - Dataset-level preprocessing (NA cleaning, subsampling) should be done
+      BEFORE calling this function (see batch_runner.preprocess_dataset)
     - Fold-level preprocessing (scaling, encoding) is handled internally via FoldPreprocessor
 
     Parameters
@@ -1006,7 +1113,8 @@ def nested_cv_tune_and_evaluate(
                 inner_splits, n_trials, scale,
                 random_state, timeout_per_fold,
                 no_tune=no_tune, default_params=default_params,
-                save_model=save_model
+                save_model=save_model,
+                feature_selection_config=feature_selection_config,
             )
             fold_results.append(result)
 
@@ -1026,7 +1134,8 @@ def nested_cv_tune_and_evaluate(
                 X_processed, y_arr, model_name,
                 inner_splits, n_trials, scale,
                 random_state, timeout_per_fold,
-                no_tune, default_params, save_model
+                no_tune, default_params, save_model,
+                feature_selection_config=feature_selection_config,
             )
             for fold_idx, trainval_idx, test_idx in fold_data
         )
@@ -1146,7 +1255,7 @@ if __name__ == '__main__':
     print("Tuning Module - Quick Test")
     print("=" * 60)
 
-    # Load a test dataset
+    # Load a pilot dataset
     X, y, meta = load_dataset('friedman1')
     print(f"\nDataset: friedman1 ({meta.n_samples} samples, {meta.n_features} features)")
 

@@ -349,7 +349,7 @@ if __name__ == '__main__':
     print("Evaluation Module - Quick Test")
     print("=" * 60)
 
-    # Load a test dataset
+    # Load a pilot dataset
     X, y, meta = load_dataset('friedman1')
     print(f"\nDataset: friedman1 ({meta.n_samples} samples, {meta.n_features} features)")
 

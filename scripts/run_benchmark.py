@@ -3,13 +3,16 @@
 Run benchmark with configurable dataset selection and models.
 
 Usage:
-    python scripts/run_benchmark.py --test                   # Quick test (2 models x 2 datasets)
-    python scripts/run_benchmark.py                          # All datasets, proportional trials
+    python scripts/run_benchmark.py                          # Pilot (default, proportional trials)
+    python scripts/run_benchmark.py --benchmark relaxed20    # 20 smallest with n>=500 (recommended)
+    python scripts/run_benchmark.py --benchmark relaxed      # All 38 datasets with n>=500
+    python scripts/run_benchmark.py --benchmark moderate     # All except high-n and extreme high-d (79 datasets)
+    python scripts/run_benchmark.py --benchmark strict       # Grinsztajn criteria (n>=3000, 18 datasets)
+    python scripts/run_benchmark.py --benchmark stress       # Large-scale stress test (163K-5.4M, TabPFN excluded)
     python scripts/run_benchmark.py --n-trials 30            # Override with uniform 30 trials for all
     python scripts/run_benchmark.py --models ridge erbf      # Specific models
     python scripts/run_benchmark.py --exclude-models tabpfn  # Exclude models (run TabPFN separately)
-    python scripts/run_benchmark.py --datasets esol superconduct  # Specific datasets
-    python scripts/run_benchmark.py --high-d-high-n          # High-d/high-n datasets only
+    python scripts/run_benchmark.py --test                   # Quick test (2x2)
 
     # Preprocessing options
     python scripts/run_benchmark.py --no-prefilter           # Disable Spearman/MI prefilter
@@ -18,16 +21,36 @@ Usage:
     python scripts/run_benchmark.py --max-samples 10000      # Subsample large datasets
 
     # Fast mode (no tuning)
-    python scripts/run_benchmark.py --no-tune                # Use sensible defaults (see benchmark/defaults.py)
+    python scripts/run_benchmark.py --no-tune                # Use sensible defaults (see perbf/defaults.py)
 
 Trial allocation (default: proportional based on search space complexity):
     ridge: 20, dt: 25, rf: 30, xgb: 50, erbf: 30, chebypoly: 25, chebytree: 30
     Use --n-trials N to force uniform N trials for all models.
+    See notes-plans/search_space_simplification_17jan26.md for rationale.
+
+Benchmark types (based on Grinsztajn et al. 2022 methodology):
+    pilot     - 5-6 pilot datasets for quick testing/debugging
+    relaxed20 - 20 smallest datasets with n>=500, d/n<0.1 (MacBook Air friendly)
+    relaxed   - All ~38 datasets with 500<=n<=10000, d/n<0.1
+    moderate  - All except high-n (n>50K) and extreme high-d (d>500) - 79 datasets
+    strict    - Strict Grinsztajn: 3000<=n<=10000, d/n<0.1 (~18 datasets)
+    stress    - Large-scale stress test (5 datasets, 163K-5.4M rows, TabPFN auto-excluded)
+    partial   - Legacy stratified selection (~20 datasets)
+    full      - All non-pilot datasets
 
 TabPFN Note:
-    TabPFN uses local GPU mode. When running TabPFN:
+    TabPFN uses a cloud API with rate limits. When running TabPFN:
     - n_jobs is forced to 1 (sequential outer folds)
+    - API calls are serialized with global lock
+    - Rate limit errors trigger exponential backoff
     Consider running TabPFN separately: --models tabpfn --output-dir results/.../tabpfn_run
+
+    TabPFN is AUTO-EXCLUDED from stress benchmark (exceeds 10K sample limit).
+
+Created: 16Jan26
+Updated: 17Jan26 - Proportional trial allocation, XGB simplified (dropped reg_alpha)
+Updated: 18Jan26 - Added stress-test benchmark for large datasets
+Updated: 23Jan26 - Added BLAS thread control to prevent oversubscription with joblib
 """
 
 # === BLAS thread control (must be before numpy import) ===
@@ -104,7 +127,9 @@ def log_package_versions(save_path=None):
 
 
 # All benchmark models
-ALL_MODELS = ['ridge', 'dt', 'rf', 'xgb', 'erbf', 'chebypoly', 'chebytree', 'tabpfn']
+# Note: erbfb removed 21Jan26 - see notes-plans/erbfb_removal_rationale_21jan26.md
+# Note: xgb updated 21Jan26 - added min_child_weight for reduced overfitting (merged xgb_v2)
+ALL_MODELS = ['ridge', 'dt', 'rf', 'xgb', 'erbf', 'chebypoly', 'chebytree', 'ebm', 'tabpfn']
 
 
 def get_model_configs(n_trials_override: int = None, no_tune: bool = False) -> dict:
@@ -139,9 +164,10 @@ def get_model_configs(n_trials_override: int = None, no_tune: bool = False) -> d
 
 
 def get_all_datasets():
-    """Get all registered datasets."""
-    from perbf.data.loader import get_benchmark_datasets
-    return sorted(get_benchmark_datasets())
+    """Get ALL datasets (benchmark + pilot)."""
+    from perbf.data.loader import get_pilot_datasets, get_benchmark_datasets
+    all_ds = set(get_benchmark_datasets()) | set(get_pilot_datasets())
+    return sorted(all_ds)
 
 
 # High-d and high-n stress test datasets (for Benchmark B)
@@ -177,7 +203,7 @@ def main():
     parser.add_argument('--n-jobs', type=int, default=-2,
                         help='Number of parallel jobs (default: -2)')
     parser.add_argument('--output-dir', type=str, default=None,
-                        help='Output directory (default: results/run_TIMESTAMP)')
+                        help='Output directory (default: results/pilot/run_TIMESTAMP)')
     parser.add_argument('--skip-existing', action='store_true', default=False,
                         help='Skip experiments with existing results')
     parser.add_argument('--quiet', action='store_true',
@@ -217,7 +243,7 @@ def main():
         n_trials_override = args.n_trials  # None = proportional, int = uniform
         no_tune = args.no_tune
         if no_tune:
-            print("NO-TUNE MODE: Using sensible defaults (see benchmark/defaults.py)")
+            print("NO-TUNE MODE: Using sensible defaults (see perbf/defaults.py)")
 
     # Apply exclusions
     if args.exclude_models:

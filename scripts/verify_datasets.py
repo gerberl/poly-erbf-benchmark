@@ -5,6 +5,7 @@ Verify all datasets load correctly and contain expected data.
 Usage:
     python scripts/verify_datasets.py              # Verify all
     python scripts/verify_datasets.py --stratum S1 # Verify S1 only
+    python scripts/verify_datasets.py --pilot      # Pilot only
     python scripts/verify_datasets.py --quick      # Just check loading (no detailed stats)
     python scripts/verify_datasets.py --verbose    # Show feature names and sample data
 
@@ -125,17 +126,20 @@ def format_result_line(result, show_features=False):
 def main():
     parser = argparse.ArgumentParser(description='Verify dataset loading')
     parser.add_argument('--stratum', type=str, help='Only verify specific stratum (S1-S5)')
+    parser.add_argument('--pilot', action='store_true', help='Only verify pilot datasets')
     parser.add_argument('--quick', action='store_true', help='Quick check (loading only, no stats)')
     parser.add_argument('--verbose', '-v', action='store_true', help='Show feature names')
     parser.add_argument('--save', type=str, help='Save results to CSV')
     parser.add_argument('datasets', nargs='*', help='Specific datasets to verify')
     args = parser.parse_args()
 
-    from perbf.data.loader import DATASET_REGISTRY
+    from perbf.data.loader import DATASET_REGISTRY, get_pilot_datasets
 
     # Filter datasets
     if args.datasets:
         datasets = args.datasets
+    elif args.pilot:
+        datasets = get_pilot_datasets()
     elif args.stratum:
         datasets = [name for name, info in DATASET_REGISTRY.items()
                    if info.get('stratum') == args.stratum]

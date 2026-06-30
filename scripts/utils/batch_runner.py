@@ -151,13 +151,15 @@ def preprocess_dataset(
         preprocess_info['subsampling_applied'] = False
 
     # Step 2: Quality prefilter (remove uninformative features)
-    # Uses Spearman with MI rescue for non-monotonic features
-    # CATEGORICALS PASS THROUGH - only filter numeric columns
+    # NOTE (24Mar26): Prefilter and MI k-best are now deferred to per-fold
+    # feature selection inside nested CV to prevent test information leakage.
+    # They are only applied here if defer_feature_selection=False (legacy mode).
+    defer_fs = config.get('defer_feature_selection', True)
     d_current = X.shape[1]
     spearman_bottom_pctl = config.get('prefilter_spearman_bottom_pctl', 30)
     mi_top_pctl = config.get('prefilter_mi_top_pctl', 30)
 
-    if prefilter_enabled and d_current >= prefilter_d_min:
+    if not defer_fs and prefilter_enabled and d_current >= prefilter_d_min:
         num_cols = X.select_dtypes(exclude=['category', 'object']).columns.tolist()
         present_cat_cols = [c for c in cat_cols if c in X.columns]
 
@@ -197,9 +199,9 @@ def preprocess_dataset(
         preprocess_info['prefilter_applied'] = False
 
     # Step 3: Dimensionality reduction (hard cap on features)
-    # Uses Mutual Information - handles mixed types (numeric + categorical) properly
+    # NOTE (24Mar26): Deferred to per-fold by default (see Step 2 note).
     d_current = X.shape[1]
-    if max_features is not None and d_current > max_features:
+    if not defer_fs and max_features is not None and d_current > max_features:
         if verbose:
             print(f"  Dim reduction: {d_current} -> {max_features} features (k-best MI)", flush=True)
 
@@ -325,6 +327,30 @@ def _run_single_experiment(
         # If we have metadata to add, disable auto-save (we'll merge and save manually)
         save_path_arg = None if result_metadata else str(result_file)
 
+        # === BUILD PER-FOLD FEATURE SELECTION CONFIG ===
+        # Spearman prefilter and MI k-best are applied inside each CV fold
+        # (fit on trainval only) to prevent test information leakage.
+        # Moved from preprocess_dataset() on 24Mar26 (reviewer R2#1, R4#1).
+        prefilter_enabled = exp_config.get('prefilter', PREPROCESSING_CONFIG['prefilter'])
+        max_features = exp_config.get('max_features', PREPROCESSING_CONFIG['max_features'])
+        d_current = X.shape[1] if X is not None else 0
+
+        fs_config = None
+        prefilter_d_min = exp_config.get('prefilter_d_min', PREPROCESSING_CONFIG['prefilter_d_min'])
+        needs_prefilter = prefilter_enabled and d_current >= prefilter_d_min
+        needs_mi_kbest = max_features is not None and d_current > max_features
+
+        if needs_prefilter or needs_mi_kbest:
+            fs_config = {
+                'prefilter': needs_prefilter,
+                'prefilter_threshold': exp_config.get('prefilter_threshold', PREPROCESSING_CONFIG['prefilter_threshold']),
+                'prefilter_d_min': prefilter_d_min,
+                'spearman_bottom_pctl': exp_config.get('prefilter_spearman_bottom_pctl', PREPROCESSING_CONFIG['prefilter_spearman_bottom_pctl']),
+                'mi_top_pctl': exp_config.get('prefilter_mi_top_pctl', PREPROCESSING_CONFIG['prefilter_mi_top_pctl']),
+                'max_features': max_features,
+                'random_state': exp_config.get('random_state', 42),
+            }
+
         # === NESTED CV EXECUTION ===
         # result: dict with CV metrics (r2_val, gap, rmse_val, fold_results, etc.)
         # Don't save fitted models for TabPFN (200-400MB each, not needed for analysis)
@@ -340,13 +366,13 @@ def _run_single_experiment(
             random_state=exp_config['random_state'],
             timeout_per_fold=exp_config.get('timeout_per_fold'),
             n_jobs=exp_config['n_jobs'],  # Sequential folds (1)
-            # Note: All dataset-level preprocessing done in preprocess_dataset() above
             save_path=save_path_arg,
             dataset_name=dataset_name,
             verbose=False,  # Suppress per-fold output in parallel
             no_tune=exp_config.get('no_tune', False),
             default_params=exp_config.get('default_params'),
             save_model=save_model,
+            feature_selection_config=fs_config,
         )
 
         # === FINAL ASSEMBLY & SAVE ===

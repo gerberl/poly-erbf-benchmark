@@ -55,6 +55,14 @@ MODEL_DEFAULTS = {
         'alpha': 0.2,
     },
 
+    'ebm': {
+        'max_bins': 256,
+        'learning_rate': 0.04,
+        'max_leaves': 3,
+        'interactions': 0,
+        'min_samples_leaf': 4,
+    },
+
     'tabpfn': {},  # No hyperparameters to tune
 }
 
