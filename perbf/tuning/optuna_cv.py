@@ -6,8 +6,9 @@ Adapted from cpet project patterns:
 - Fold-aware pruning for efficient search
 
 Two-level preprocessing:
-- Dataset-level: In batch_runner.preprocess_dataset() before CV (NA, subsample, prefilter, dim reduction)
-- Fold-level: FoldPreprocessor per-fold (scaling, encoding to prevent leakage)
+- Dataset-level: Missingness/variance filtering and subsampling before CV.
+- Nested CV: Feature selection and FoldPreprocessor fitted on each inner training
+  split and refitted on the outer training set for final evaluation.
 
 Usage:
     from perbf.tuning.optuna_cv import tune_model, get_best_model, MODEL_FACTORIES

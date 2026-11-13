@@ -56,13 +56,23 @@ def preprocess_dataset(
     """
     Apply dataset-level preprocessing (runs BEFORE cross-validation).
 
-    Stages (all run conditionally based on config):
-    0. NA cleaning: drop features with >50% missing values
-    1. Subsampling: random subsample if n > max_samples
-    2. Prefilter: remove uninformative features (Spearman |ρ| < threshold)
-    3. Dim reduction: select top-k features by mutual information
+    ONLY target-INDEPENDENT steps run here, so applying them before CV splitting
+    introduces no leakage:
+    0a. NA cleaning: drop features with >50% missing values
+    0b. Quasi-constant: drop features with mode frequency > tol
+    1.  Subsampling: random subsample if n > max_samples
 
-    Categorical handling:
+    Target-DEPENDENT feature selection (Spearman prefilter, MI k-best) is NOT
+    performed here by default. With ``defer_feature_selection=True`` (the default)
+    it is deferred to per-fold selection inside the nested CV, where it is refit
+    on each inner training split and on each outer training fold
+    (see ``perbf.preprocessing.apply_fold_feature_selection`` and
+    ``perbf.tuning.optuna_cv``). The legacy dataset-level prefilter/dim-reduction
+    block below runs ONLY if ``defer_feature_selection=False`` and uses the full
+    target vector -- retained for backward compatibility, not used by the
+    benchmark.
+
+    Categorical handling (legacy dataset-level path only):
     - Prefilter: categoricals pass through (only numerics filtered by Spearman)
     - Dim reduction: uses Mutual Information (handles mixed types properly)
 

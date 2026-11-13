@@ -1,8 +1,9 @@
 """Preprocessing utilities for the benchmark.
 
 Two-level preprocessing:
-1. Dataset-level: Run ONCE before CV in batch_runner.preprocess_dataset() (NA, subsample, prefilter, dim reduction)
-2. Fold-level: FoldPreprocessor runs per-fold for scaling/encoding (no leakage)
+1. Dataset-level: Missingness/variance filtering and subsampling before CV.
+2. Fold-level: Feature selection, imputation, scaling and encoding fitted on each
+   inner training split and refitted on the outer training set for final evaluation.
 """
 
 import numpy as np
@@ -264,7 +265,7 @@ def prefilter_by_spearman(X, y, threshold=0.05):
     Use conservative threshold (0.03-0.10) to minimize this risk.
     """
     import pandas as pd
-    correlations = X.corrwith(pd.Series(y), method='spearman').abs()
+    correlations = X.corrwith(pd.Series(np.asarray(y), index=X.index), method='spearman').abs()
     return correlations[correlations >= threshold].index.tolist()
 
 
@@ -307,7 +308,7 @@ def prefilter_combined(X, y, spearman_threshold=0.05, spearman_bottom_pctl=30.0,
     d = X.shape[1]
 
     # Spearman correlations and ranks
-    spearman_r = X.corrwith(pd.Series(y), method='spearman').abs()
+    spearman_r = X.corrwith(pd.Series(np.asarray(y), index=X.index), method='spearman').abs()
     spearman_rank = spearman_r.rank(ascending=False)  # 1 = highest correlation
     spearman_pctl = (spearman_rank / d) * 100  # percentile (low = good)
 

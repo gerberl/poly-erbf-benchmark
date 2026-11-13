@@ -3,12 +3,9 @@
 Run benchmark with configurable dataset selection and models.
 
 Usage:
-    python scripts/run_benchmark.py                          # Pilot (default, proportional trials)
-    python scripts/run_benchmark.py --benchmark relaxed20    # 20 smallest with n>=500 (recommended)
-    python scripts/run_benchmark.py --benchmark relaxed      # All 38 datasets with n>=500
-    python scripts/run_benchmark.py --benchmark moderate     # All except high-n and extreme high-d (79 datasets)
-    python scripts/run_benchmark.py --benchmark strict       # Grinsztajn criteria (n>=3000, 18 datasets)
-    python scripts/run_benchmark.py --benchmark stress       # Large-scale stress test (163K-5.4M, TabPFN excluded)
+    python scripts/run_benchmark.py                          # All datasets in the registry (proportional trials)
+    python scripts/run_benchmark.py --datasets esol pol      # Specific datasets
+    python scripts/run_benchmark.py --high-d-high-n          # High-d / high-n subset (scalability set)
     python scripts/run_benchmark.py --n-trials 30            # Override with uniform 30 trials for all
     python scripts/run_benchmark.py --models ridge erbf      # Specific models
     python scripts/run_benchmark.py --exclude-models tabpfn  # Exclude models (run TabPFN separately)
@@ -16,27 +13,21 @@ Usage:
 
     # Preprocessing options
     python scripts/run_benchmark.py --no-prefilter           # Disable Spearman/MI prefilter
-    python scripts/run_benchmark.py --no-dim-reduction       # Disable k-best feature selection
-    python scripts/run_benchmark.py --max-features 50        # Custom feature cap (default: 100)
-    python scripts/run_benchmark.py --max-samples 10000      # Subsample large datasets
+    python scripts/run_benchmark.py --no-dim-reduction       # Disable MI k-best feature selection
+    python scripts/run_benchmark.py --max-features 50        # Feature cap for MI k-best (default: 100)
+    python scripts/run_benchmark.py --max-samples 50000      # Subsample datasets above this size
 
     # Fast mode (no tuning)
     python scripts/run_benchmark.py --no-tune                # Use sensible defaults (see perbf/defaults.py)
 
-Trial allocation (default: proportional based on search space complexity):
-    ridge: 20, dt: 25, rf: 30, xgb: 50, erbf: 30, chebypoly: 25, chebytree: 30
-    Use --n-trials N to force uniform N trials for all models.
-    See notes-plans/search_space_simplification_17jan26.md for rationale.
+Dataset selection (there is NO --benchmark / preset flag -- it was removed):
+    default             all datasets in the registry (perbf.data.loader.get_all_datasets)
+    --datasets A B ...  explicit subset
+    --high-d-high-n     the high-d / high-n scalability subset (HIGH_D_HIGH_N_DATASETS)
 
-Benchmark types (based on Grinsztajn et al. 2022 methodology):
-    pilot     - 5-6 pilot datasets for quick testing/debugging
-    relaxed20 - 20 smallest datasets with n>=500, d/n<0.1 (MacBook Air friendly)
-    relaxed   - All ~38 datasets with 500<=n<=10000, d/n<0.1
-    moderate  - All except high-n (n>50K) and extreme high-d (d>500) - 79 datasets
-    strict    - Strict Grinsztajn: 3000<=n<=10000, d/n<0.1 (~18 datasets)
-    stress    - Large-scale stress test (5 datasets, 163K-5.4M rows, TabPFN auto-excluded)
-    partial   - Legacy stratified selection (~20 datasets)
-    full      - All non-pilot datasets
+Trial allocation (default: proportional to search-space complexity):
+    ridge 20, dt 25, rf 25, xgb 50, erbf 30, chebypoly 30, chebytree 30, ebm 15; tabpfn 0 (zero-shot)
+    Use --n-trials N to force uniform N trials for all models.
 
 TabPFN Note:
     TabPFN uses a cloud API with rate limits. When running TabPFN:
