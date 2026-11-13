@@ -1,0 +1,122 @@
+{
+  "description": "ERBF seed/initialisation sensitivity, corrected (train-only) MI feature selection, plus superconduct all-rows (leaky, March) baseline",
+  "datasets": [
+    "esol",
+    "concrete_strength",
+    "power_plant",
+    "superconduct",
+    "california_housing"
+  ],
+  "baseline_datasets": [
+    "superconduct"
+  ],
+  "subsample": {
+    "n_max": 5000,
+    "rng": "np.random.RandomState(42).choice(n, 5000, replace=False)"
+  },
+  "split": {
+    "test_size": 0.2,
+    "random_state": 42
+  },
+  "feature_selection": {
+    "d_max": 50,
+    "score": "mutual_info_regression",
+    "random_state": 42,
+    "select": "np.argsort(mi)[-50:]",
+    "procedures": {
+      "train_only": "MI on training rows only (corrected)",
+      "all_rows_leaky": "MI on all sampled rows before split (March, leaky)"
+    }
+  },
+  "model_common": {
+    "n_rbf": "auto",
+    "alpha": 0.2,
+    "width_optim_iters": 30,
+    "width_mode": "full",
+    "width_optim": "gradient",
+    "standardize": true
+  },
+  "study_A": {
+    "center_init": "lipschitz",
+    "width_init": "local_ridge",
+    "seeds": [
+      0,
+      7,
+      42,
+      123,
+      999
+    ]
+  },
+  "study_B": {
+    "center_init": [
+      "lipschitz",
+      "kmeans"
+    ],
+    "width_init": [
+      "local_ridge",
+      "local_variance"
+    ],
+    "seeds": [
+      42,
+      123,
+      999
+    ]
+  },
+  "elapsed_definition": "wall time from model construction through fit and both score() calls (as March)",
+  "n_fits": {
+    "corrected_A": 25,
+    "corrected_B": 60,
+    "baseline": 17,
+    "total": 102
+  },
+  "started": "2026-11-13T15:23:48+0000",
+  "host": "ironton",
+  "platform": "Linux-6.1.0-34-amd64-x86_64-with-glibc2.36",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:25:55) [GCC 14.3.0]",
+  "executable": "/home/staff/luciano/micromamba/envs/poly_erbf_benchmark/bin/python",
+  "versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "sklearn": "1.6.1",
+    "pandas": "2.3.3",
+    "erbf": "0.1.0",
+    "numba": "0.63.1"
+  },
+  "thread_env": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "runner": {
+    "path": "/media/linux-data2/Dropbox/00.new.structure/rke-doing/poly_erbf_benchmark/expl/erbf_seed_init_sensitivity_corrected_fs_ironton_13nov26.py",
+    "sha256": "d7659536b0165d27f672f4d565edbe71d43676bb35ea83ba4d842c9cef3d28ad"
+  },
+  "erbf_source": {
+    "dir": "/home/staff/luciano/Dropbox/00.new.structure/rke-doing/my-own-packages-modules/erbf/src/erbf",
+    "git_head": "73755edda1ae9fbf3bc7756eb49d06a21bc82ba3",
+    "git_status_porcelain": "",
+    "files_sha256": {
+      "__init__.py": "18b29705ed0e0a9d1f78995e0166ee6c22e1e80b757f94800b33ea12cb795f4d",
+      "activations.py": "7aa07aa1fbddecbd965bb262023920d61d546f362542e0bf6eef8639abf15a35",
+      "auto_params.py": "f40be6b8d7869cf9daa418d490fbe4efa7948d2c3476b82ae54725d277139716",
+      "base.py": "8d8541837c3f0cd137d6e27c09fd3c6063d964b7334912535b81c104039ba3d3",
+      "center_initialization.py": "3c431fe24e6c196ca744a98e9530474f2a37933dff2b3962e6d7d537935f6349",
+      "local_analysis.py": "a58f49fa731d05c4545b023f729e444b850431c5e9153c5c8f8ce7654cf51b72",
+      "regressor.py": "3f9790559eb186600fdf739bd60707faa8a6f66b2883e4d53dc19efbc3e793ed",
+      "width_initialization.py": "3b7c225fa80f4ec55ff3067b8541cfc9a9ba9522854f1a115fc1c6e6a2786837",
+      "width_optimization.py": "7778752c0c7547727ba896647665b6e186a580bc72dfd15d23fe0fbe0627b57f"
+    }
+  },
+  "perbf_loader": {
+    "path": "/home/staff/luciano/Dropbox/00.new.structure/rke-doing/poly_erbf_benchmark/perbf/data/loader.py",
+    "sha256": "dd0e9c617f2302782e36ab57e07712bd0f00605838f6270827cd50b851a58c4f"
+  },
+  "march_reference_sha256": {
+    "expl/erbf_convergence_stability_24mar26.py": "82273f803d5be2cce7e034f7288a2c2d91186985380551c3dfb236972dc90d3a",
+    "expl/lipschitz_estimator_sensitivity_24mar26.py": "5cbdcb330e86f0b295209a10ef61248c417dbff06f21833c4d1cc3aa20c7302e",
+    "expl/erbf_convergence_stability_results_24mar26.csv": "931c2f3b03c9c41eec6c807527bfdffcf27aa8e46de6cd70303148319aa2bf8f",
+    "expl/lipschitz_estimator_sensitivity_results_24mar26.csv": "e136430e4ca19ac38c3336eec29c395f7b9ae5876521db964f1ba68904bf65b8"
+  },
+  "finished": "2026-11-13T15:26:17+0000",
+  "total_elapsed_s": 148.37262439727783
+}

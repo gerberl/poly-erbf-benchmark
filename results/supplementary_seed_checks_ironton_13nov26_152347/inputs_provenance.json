@@ -1,0 +1,460 @@
+[
+  {
+    "dataset": "esol",
+    "procedure": "train_only",
+    "raw_X": {
+      "shape": [
+        1128,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "b7612e54f0ac98fd57de9418b664cdfe3253fb2e9cb39190616a93f954676a19"
+    },
+    "raw_y": {
+      "shape": [
+        1128
+      ],
+      "dtype": "float64",
+      "sha256": "3ef1cf1f13d7777069261374a3c08bc25d827cadedcb7f8c87d1f537da533417"
+    },
+    "sample_idx": null,
+    "selected_features": null,
+    "train_idx": {
+      "shape": [
+        902
+      ],
+      "dtype": "int64",
+      "sha256": "db497db9acf21900041aa89654b4c95c8d2122409309c71256f7327553798bdf"
+    },
+    "test_idx": {
+      "shape": [
+        226
+      ],
+      "dtype": "int64",
+      "sha256": "8a82865069736a0363e6f86d4f76c4e3c72ebf1f28ca852046b2336337d5dd8f"
+    },
+    "X_train": {
+      "shape": [
+        902,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "9943588b5c8d6c05e39f0a6b0eaf1939c1c8aa9f5a2571d3f19b11732b2bdfe7"
+    },
+    "X_test": {
+      "shape": [
+        226,
+        7
+      ],
+      "dtype": "float64",
+      "sha256": "4f8b092bfe7fbfe316467bdd83c68dc6ff8de6824ffd50b60692d0e79cda91cf"
+    },
+    "y_train": {
+      "shape": [
+        902
+      ],
+      "dtype": "float64",
+      "sha256": "491ef2220d087f719360b9d87038be05b1ca8af8b69f5cbd52bebe51a315d687"
+    },
+    "y_test": {
+      "shape": [
+        226
+      ],
+      "dtype": "float64",
+      "sha256": "26ef642cef45785aedc4c25c8954bbca7b9c9f671769df2e7600c0a7ab0bc2b6"
+    },
+    "n": 1128,
+    "d_raw": 7,
+    "d_used": 7
+  },
+  {
+    "dataset": "concrete_strength",
+    "procedure": "train_only",
+    "raw_X": {
+      "shape": [
+        1030,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "c4f7f8fda5b3d88e68498336fd4c640b7c7215e13e58be2549e1d4251d005f26"
+    },
+    "raw_y": {
+      "shape": [
+        1030
+      ],
+      "dtype": "float64",
+      "sha256": "6a51bf86903430946bc63cad7bd665ee89132a2bb413172e60b7afe14800f013"
+    },
+    "sample_idx": null,
+    "selected_features": null,
+    "train_idx": {
+      "shape": [
+        824
+      ],
+      "dtype": "int64",
+      "sha256": "b00aaf13c5c18857c9fbda39a2ade8315d5e1b809fd48d42178f86a73a6998d4"
+    },
+    "test_idx": {
+      "shape": [
+        206
+      ],
+      "dtype": "int64",
+      "sha256": "a2c49e4571b3b28f181d2bd98c96dabc4bbc5bc8593424893e915696ea4f02c2"
+    },
+    "X_train": {
+      "shape": [
+        824,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "d0e60f381df43240caadd8885934afc19531035c9ad72193e4192402b3175fa2"
+    },
+    "X_test": {
+      "shape": [
+        206,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "b44ed88f7a63379d355283a942a940034d3688715c000851e7c8086e61ee54e3"
+    },
+    "y_train": {
+      "shape": [
+        824
+      ],
+      "dtype": "float64",
+      "sha256": "d41c3cf5fa2a6d75d39da397e9dc4b8d641e255b25e0818aad064337373125c8"
+    },
+    "y_test": {
+      "shape": [
+        206
+      ],
+      "dtype": "float64",
+      "sha256": "8dacdd5679eb23122e7a19862dc054127c485868e3fb7e4a4e7ab744a97f0752"
+    },
+    "n": 1030,
+    "d_raw": 8,
+    "d_used": 8
+  },
+  {
+    "dataset": "power_plant",
+    "procedure": "train_only",
+    "raw_X": {
+      "shape": [
+        9568,
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "57915151259d548f8083407fe3613d68941e8987e9e8bfd80b6000f1aa06fe71"
+    },
+    "raw_y": {
+      "shape": [
+        9568
+      ],
+      "dtype": "float64",
+      "sha256": "93245934326260dfae8c14917d3bc467376672652abff35fe98c6a83ee067995"
+    },
+    "sample_idx": {
+      "shape": [
+        5000
+      ],
+      "dtype": "int64",
+      "sha256": "74ca996b40fee411822a86e482ffc3138fbf4cf591586a54469f4986e99366b9"
+    },
+    "selected_features": null,
+    "train_idx": {
+      "shape": [
+        4000
+      ],
+      "dtype": "int64",
+      "sha256": "bd2914e6352d80bb9e4bca4d495ac3d0c2dc919b8e60d32b32142caff5c9c021"
+    },
+    "test_idx": {
+      "shape": [
+        1000
+      ],
+      "dtype": "int64",
+      "sha256": "44096c11c994a9e2211ee4088930851f2eac338c0d9e66461ddb94931cb143bd"
+    },
+    "X_train": {
+      "shape": [
+        4000,
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "e4146b7b19d69ed63be4e1404695cbf0c055bb2d0fe629e6b57fffebb730ae3c"
+    },
+    "X_test": {
+      "shape": [
+        1000,
+        4
+      ],
+      "dtype": "float64",
+      "sha256": "292c196aafcc291bc07a9c2a896e8c539f5854e8b6407ab5f99757a1134edbc6"
+    },
+    "y_train": {
+      "shape": [
+        4000
+      ],
+      "dtype": "float64",
+      "sha256": "59babcb30a8d7b1e9c7dfa52c0186500ba540ae39f402b4ef59b331ce0e3669a"
+    },
+    "y_test": {
+      "shape": [
+        1000
+      ],
+      "dtype": "float64",
+      "sha256": "43608e26f34259c242dc03f566f982bb8fab67aa8d0b1bfd0149101d67112a91"
+    },
+    "n": 5000,
+    "d_raw": 4,
+    "d_used": 4
+  },
+  {
+    "dataset": "superconduct",
+    "procedure": "train_only",
+    "raw_X": {
+      "shape": [
+        21263,
+        79
+      ],
+      "dtype": "float64",
+      "sha256": "8c288558341a8f0422251289c099e35134da27777890e5d88960c0ee13d48998"
+    },
+    "raw_y": {
+      "shape": [
+        21263
+      ],
+      "dtype": "float64",
+      "sha256": "af0af84085bf055ab1633bcc717ae1aef23f3ce39f5e5602a9a64191f06caddb"
+    },
+    "sample_idx": {
+      "shape": [
+        5000
+      ],
+      "dtype": "int64",
+      "sha256": "c358cdd903b45f639e17ec05aa754e418e23d4314e885acea60794bf15c1016e"
+    },
+    "mi": {
+      "shape": [
+        79
+      ],
+      "dtype": "float64",
+      "sha256": "847218fcc3b8caa0f9b713dc7e2d22c01f3149b5162d8793e1ddd5d1ddc89e98"
+    },
+    "selected_features": {
+      "shape": [
+        50
+      ],
+      "dtype": "int64",
+      "sha256": "df808ff6150b4100c0c40b0153b08a4ccac544f28062a086b2d390ef3dfa400a"
+    },
+    "train_idx": {
+      "shape": [
+        4000
+      ],
+      "dtype": "int64",
+      "sha256": "bd2914e6352d80bb9e4bca4d495ac3d0c2dc919b8e60d32b32142caff5c9c021"
+    },
+    "test_idx": {
+      "shape": [
+        1000
+      ],
+      "dtype": "int64",
+      "sha256": "44096c11c994a9e2211ee4088930851f2eac338c0d9e66461ddb94931cb143bd"
+    },
+    "X_train": {
+      "shape": [
+        4000,
+        50
+      ],
+      "dtype": "float64",
+      "sha256": "429dcac104523bdaf8425363f6c81d14adb09b5909c6335b697c130836343e87"
+    },
+    "X_test": {
+      "shape": [
+        1000,
+        50
+      ],
+      "dtype": "float64",
+      "sha256": "ea0e77d9f3f030afe9c62725333c3cdc2d918592b53b8f93b80a62f005297442"
+    },
+    "y_train": {
+      "shape": [
+        4000
+      ],
+      "dtype": "float64",
+      "sha256": "93070088eaa28e9242a7d58114fe3553796bf144668aff126b309d7f2981b082"
+    },
+    "y_test": {
+      "shape": [
+        1000
+      ],
+      "dtype": "float64",
+      "sha256": "86628e252f5be32818565fd26b6975de1e9374ddb402b6c825dc382bd0c00ae3"
+    },
+    "n": 5000,
+    "d_raw": 79,
+    "d_used": 50
+  },
+  {
+    "dataset": "california_housing",
+    "procedure": "train_only",
+    "raw_X": {
+      "shape": [
+        20640,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "c8f43774aa27b7ec034e60db31b6124e12b4a0d42b55b0c8eb1320089e2ebc37"
+    },
+    "raw_y": {
+      "shape": [
+        20640
+      ],
+      "dtype": "float64",
+      "sha256": "ae80bb98487c04d7383ed8aecda8e207583dfd3e66f6679fded97597c3f6c87e"
+    },
+    "sample_idx": {
+      "shape": [
+        5000
+      ],
+      "dtype": "int64",
+      "sha256": "0e8c48636196b6e58ff77cfe034395bc8470a64aecb819bd9e3e895dd3b56afe"
+    },
+    "selected_features": null,
+    "train_idx": {
+      "shape": [
+        4000
+      ],
+      "dtype": "int64",
+      "sha256": "bd2914e6352d80bb9e4bca4d495ac3d0c2dc919b8e60d32b32142caff5c9c021"
+    },
+    "test_idx": {
+      "shape": [
+        1000
+      ],
+      "dtype": "int64",
+      "sha256": "44096c11c994a9e2211ee4088930851f2eac338c0d9e66461ddb94931cb143bd"
+    },
+    "X_train": {
+      "shape": [
+        4000,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "0fb8985ce2dccb840d420b5e66eff448848b63dd873384d8c281f42dc8b9a032"
+    },
+    "X_test": {
+      "shape": [
+        1000,
+        8
+      ],
+      "dtype": "float64",
+      "sha256": "fc8acae2a8f3cf23586c2403078bdd0119a9dfd7eb9953b909cadf69405bdcda"
+    },
+    "y_train": {
+      "shape": [
+        4000
+      ],
+      "dtype": "float64",
+      "sha256": "2df097bf3e08c068253c8d25c54b92b0abfc1c6620c26a070514e21a5dd5dc13"
+    },
+    "y_test": {
+      "shape": [
+        1000
+      ],
+      "dtype": "float64",
+      "sha256": "3c90d6f9241b4b164f7d9e68a13b289202fa7761f28b07f8d1401d583badd828"
+    },
+    "n": 5000,
+    "d_raw": 8,
+    "d_used": 8
+  },
+  {
+    "dataset": "superconduct",
+    "procedure": "all_rows_leaky",
+    "raw_X": {
+      "shape": [
+        21263,
+        79
+      ],
+      "dtype": "float64",
+      "sha256": "8c288558341a8f0422251289c099e35134da27777890e5d88960c0ee13d48998"
+    },
+    "raw_y": {
+      "shape": [
+        21263
+      ],
+      "dtype": "float64",
+      "sha256": "af0af84085bf055ab1633bcc717ae1aef23f3ce39f5e5602a9a64191f06caddb"
+    },
+    "sample_idx": {
+      "shape": [
+        5000
+      ],
+      "dtype": "int64",
+      "sha256": "c358cdd903b45f639e17ec05aa754e418e23d4314e885acea60794bf15c1016e"
+    },
+    "mi": {
+      "shape": [
+        79
+      ],
+      "dtype": "float64",
+      "sha256": "83950d3c9b84a4a8efe1d55715ea906758259dcf37afeff6d6aa7dc1b9c50fd9"
+    },
+    "selected_features": {
+      "shape": [
+        50
+      ],
+      "dtype": "int64",
+      "sha256": "47e0231e07854b4e2f0814b8928931ea6985073ad49ea724adeb4db156eae789"
+    },
+    "train_idx": {
+      "shape": [
+        4000
+      ],
+      "dtype": "int64",
+      "sha256": "bd2914e6352d80bb9e4bca4d495ac3d0c2dc919b8e60d32b32142caff5c9c021"
+    },
+    "test_idx": {
+      "shape": [
+        1000
+      ],
+      "dtype": "int64",
+      "sha256": "44096c11c994a9e2211ee4088930851f2eac338c0d9e66461ddb94931cb143bd"
+    },
+    "X_train": {
+      "shape": [
+        4000,
+        50
+      ],
+      "dtype": "float64",
+      "sha256": "7ceed0535017c00b123332fa65d46c24a6560c5e39e0c583cc49fc3f19eba66d"
+    },
+    "X_test": {
+      "shape": [
+        1000,
+        50
+      ],
+      "dtype": "float64",
+      "sha256": "25da2b08d69536babe933296844b33d895e741767fd1a24268d5b305c6bf7202"
+    },
+    "y_train": {
+      "shape": [
+        4000
+      ],
+      "dtype": "float64",
+      "sha256": "93070088eaa28e9242a7d58114fe3553796bf144668aff126b309d7f2981b082"
+    },
+    "y_test": {
+      "shape": [
+        1000
+      ],
+      "dtype": "float64",
+      "sha256": "86628e252f5be32818565fd26b6975de1e9374ddb402b6c825dc382bd0c00ae3"
+    },
+    "n": 5000,
+    "d_raw": 79,
+    "d_used": 50
+  }
+]

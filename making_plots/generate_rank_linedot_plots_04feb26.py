@@ -22,8 +22,8 @@ from scipy.stats import studentized_range, friedmanchisquare
 # --- Paths ---
 SCRIPT_DIR = Path(__file__).resolve().parent
 PAPER_REPO = SCRIPT_DIR.parent
-REPO_ROOT = PAPER_REPO.parent
-RESULTS_CSV = REPO_ROOT / 'results/benchmark-A/benchmark_summary/results_detailed.csv'
+REPO_ROOT = PAPER_REPO
+RESULTS_CSV = REPO_ROOT / 'results/benchmark_summary/results_detailed.csv'
 OUTPUT_DIR = PAPER_REPO / 'figures'
 
 # --- Style ---
@@ -47,9 +47,10 @@ MODEL_LABELS = {
     'rf': 'rf',
     'dt': 'dt',
     'ridge': 'ridge',
+    'ebm': 'ebm',
 }
 
-CPU_MODELS = ['ridge', 'dt', 'rf', 'xgb', 'erbf', 'chebypoly', 'chebytree']
+CPU_MODELS = ['ridge', 'dt', 'rf', 'xgb', 'ebm', 'erbf', 'chebypoly', 'chebytree']
 
 
 def load_data():

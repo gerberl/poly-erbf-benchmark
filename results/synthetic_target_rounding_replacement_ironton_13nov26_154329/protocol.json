@@ -1,0 +1,226 @@
+{
+  "description": "Replacement synthetic target-rounding experiment (not a reproduction of tab:erbf-ordinal-synth)",
+  "command": "/home/staff/luciano/micromamba/envs/poly_erbf_benchmark/bin/python expl/synthetic_target_rounding_replacement_ironton_13nov26.py --outdir results/synthetic_target_rounding_replacement_ironton_13nov26_154329",
+  "cwd": "/media/linux-data2/Dropbox/00.new.structure/rke-doing/poly_erbf_benchmark",
+  "host": "ironton",
+  "platform": "Linux-6.1.0-34-amd64-x86_64-with-glibc2.36",
+  "python": "3.12.12 | packaged by conda-forge | (main, Oct 22 2025, 23:25:55) [GCC 14.3.0]",
+  "started": "2026-11-13T15:43:30+0000",
+  "data": {
+    "rng": "np.random.default_rng(42)",
+    "n": 1000,
+    "generation_order": [
+      "x1=uniform(0,1,n)",
+      "x2=uniform(0,1,n)",
+      "noise=standard_normal((n,3))",
+      "y=sin(2pi x1)+cos(3pi x2)+normal(0,0.1,n)"
+    ],
+    "noise_sd": 0.1,
+    "X_sha256": "79ad3f561aaa2b27c0e036a5c0665593d127475b1f90ebaaaa13d9edb96852de",
+    "y_sha256": "7ea94e9034201cb87c54dda915dd17eedbd5108c702a09ec880ed6e102295258",
+    "X_shape": [
+      1000,
+      5
+    ],
+    "X_dtype": "float64",
+    "y_dtype": "float64"
+  },
+  "rounding": {
+    "levels_nominal": [
+      3,
+      5,
+      7,
+      10,
+      15,
+      21,
+      50,
+      100
+    ],
+    "rule": "lo=y.min(); hi=y.max(); step=(hi-lo)/(L-1); index=clip(floor((y-lo)/step+0.5),0,L-1); y_L=lo+index*step",
+    "note": "grid defined once from the full generated y as part of constructing the synthetic outcome, before CV; not a learned preprocessing step. Predictions are not rounded.",
+    "levels_occupied": {
+      "L3": 3,
+      "L5": 5,
+      "L7": 7,
+      "L10": 10,
+      "L15": 15,
+      "L21": 21,
+      "L50": 50,
+      "L100": 100,
+      "continuous": 1000
+    },
+    "target_sha256": {
+      "L3": "90bbc50a976f23f6104ec2b9f74180d1b8a00a46cb592ed2d785c8052fb76f5b",
+      "L5": "0ab9bab30255811b2a226af3425b6ac522f0e9334bac5453a0916b5075620081",
+      "L7": "67ea71ef20e384254ff015aee41859a301fcddb457283ae33bd378ba48c3cccf",
+      "L10": "f26fb58ac163af863f65ee21948aade4f4905131a3939ee4fe7835547aa21425",
+      "L15": "c70853e398f08224246cc7f94708ea7fe6da0acff0f01e5e3bbe23d2046b7eda",
+      "L21": "185b4e66d4ed172e099fe85c399dae92183226cf8d36e002f29eda2c2f9ac8e0",
+      "L50": "3421abc42039bb22e7519e34eeb100a6a47188cfd6625d29f8ac07f0bdbe3c54",
+      "L100": "92a6596fa60cf798f80270115c8cd8c143e9e427d96e2e8e2b91797e80b2db97",
+      "continuous": "7ea94e9034201cb87c54dda915dd17eedbd5108c702a09ec880ed6e102295258"
+    },
+    "target_variance_full": {
+      "L3": 1.503172023576936,
+      "L5": 1.1243427282447727,
+      "L7": 1.0176681029498953,
+      "L10": 0.9918888576165069,
+      "L15": 0.9982214083055962,
+      "L21": 0.9918019015617996,
+      "L50": 0.9858248241202111,
+      "L100": 0.9868588694594886,
+      "continuous": 0.9856529721247215
+    }
+  },
+  "cv": {
+    "splitter": "KFold(n_splits=5, shuffle=True, random_state=42)",
+    "materialised_once": true,
+    "fold_test_sizes": [
+      200,
+      200,
+      200,
+      200,
+      200
+    ],
+    "test_idx_sha256": [
+      "e7a13967bf6c36c9cb5ac14739d4ec2a709828956da8596833508c58d0b6b808",
+      "f0ec7019f25cd3ec73ea9e259e2fd6d99b02d1d6aafb44674a7c259faf3652fb",
+      "92fb4c5e5550db23f9f30af589ff79896ac03022c30ad536925d07216f882c35",
+      "a21d538fa1560378c350eefe3d08fcf64faecc1f2b7178ef5297cf511ac1bffc",
+      "5ee83ed51fd9d1efbfdb7622cdc2a29e884ebacc2273cdd5bde0e3e581d715ee"
+    ]
+  },
+  "scaling": "none external; ERBF internal standardize (fitted on training fold inside fit)",
+  "model_defaults_source": {
+    "path": "/home/staff/luciano/Dropbox/00.new.structure/rke-doing/poly_erbf_benchmark/perbf/defaults.py",
+    "sha256": "f50da456785238a5eb40628a27a518978b23098a3e8399ba22f820aa48b81c94",
+    "MODEL_DEFAULTS_used": {
+      "erbf": {
+        "n_rbf": "auto",
+        "center_init": "lipschitz",
+        "width_init": "local_ridge",
+        "alpha": 0.2
+      },
+      "xgb": {
+        "n_estimators": 100,
+        "max_depth": 6,
+        "learning_rate": 0.1,
+        "subsample": 0.9,
+        "colsample_bytree": 0.9,
+        "reg_lambda": 1.0
+      },
+      "dt": {
+        "max_depth": 10,
+        "min_samples_leaf": 0.01,
+        "min_samples_split": 0.01
+      }
+    }
+  },
+  "resolved_params": {
+    "erbf": {
+      "alpha": 0.2,
+      "center_init": "lipschitz",
+      "l1_ratio": 0.5,
+      "n_rbf": "auto",
+      "random_state": 42,
+      "regularization": "ridge",
+      "standardize": true,
+      "verbose": 0,
+      "width_init": "local_ridge",
+      "width_mode": "full",
+      "width_optim": "gradient",
+      "width_optim_iters": 30
+    },
+    "xgb": {
+      "objective": "reg:squarederror",
+      "base_score": null,
+      "booster": null,
+      "callbacks": null,
+      "colsample_bylevel": null,
+      "colsample_bynode": null,
+      "colsample_bytree": 0.9,
+      "device": null,
+      "early_stopping_rounds": null,
+      "enable_categorical": false,
+      "eval_metric": null,
+      "feature_types": null,
+      "feature_weights": null,
+      "gamma": null,
+      "grow_policy": null,
+      "importance_type": null,
+      "interaction_constraints": null,
+      "learning_rate": 0.1,
+      "max_bin": null,
+      "max_cat_threshold": null,
+      "max_cat_to_onehot": null,
+      "max_delta_step": null,
+      "max_depth": 6,
+      "max_leaves": null,
+      "min_child_weight": null,
+      "missing": NaN,
+      "monotone_constraints": null,
+      "multi_strategy": null,
+      "n_estimators": 100,
+      "n_jobs": 1,
+      "num_parallel_tree": null,
+      "random_state": 42,
+      "reg_alpha": null,
+      "reg_lambda": 1.0,
+      "sampling_method": null,
+      "scale_pos_weight": null,
+      "subsample": 0.9,
+      "tree_method": null,
+      "validate_parameters": null,
+      "verbosity": 0
+    },
+    "dt": {
+      "ccp_alpha": 0.0,
+      "criterion": "squared_error",
+      "max_depth": 10,
+      "max_features": null,
+      "max_leaf_nodes": null,
+      "min_impurity_decrease": 0.0,
+      "min_samples_leaf": 0.01,
+      "min_samples_split": 0.01,
+      "min_weight_fraction_leaf": 0.0,
+      "monotonic_cst": null,
+      "random_state": 42,
+      "splitter": "best"
+    }
+  },
+  "versions": {
+    "numpy": "2.3.5",
+    "scipy": "1.17.0",
+    "sklearn": "1.6.1",
+    "xgboost": "3.1.3",
+    "pandas": "2.3.3",
+    "erbf": "0.1.0"
+  },
+  "thread_env": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "runner": {
+    "path": "/media/linux-data2/Dropbox/00.new.structure/rke-doing/poly_erbf_benchmark/expl/synthetic_target_rounding_replacement_ironton_13nov26.py",
+    "sha256": "c133702ca94872652cdc69cd077135a24bfb39388c9bd689ddae3a98f89c2133"
+  },
+  "erbf_source": {
+    "dir": "/home/staff/luciano/Dropbox/00.new.structure/rke-doing/my-own-packages-modules/erbf/src/erbf",
+    "git_head": "73755edda1ae9fbf3bc7756eb49d06a21bc82ba3",
+    "git_status_porcelain": "",
+    "files_sha256": {
+      "__init__.py": "18b29705ed0e0a9d1f78995e0166ee6c22e1e80b757f94800b33ea12cb795f4d",
+      "activations.py": "7aa07aa1fbddecbd965bb262023920d61d546f362542e0bf6eef8639abf15a35",
+      "auto_params.py": "f40be6b8d7869cf9daa418d490fbe4efa7948d2c3476b82ae54725d277139716",
+      "base.py": "8d8541837c3f0cd137d6e27c09fd3c6063d964b7334912535b81c104039ba3d3",
+      "center_initialization.py": "3c431fe24e6c196ca744a98e9530474f2a37933dff2b3962e6d7d537935f6349",
+      "local_analysis.py": "a58f49fa731d05c4545b023f729e444b850431c5e9153c5c8f8ce7654cf51b72",
+      "regressor.py": "3f9790559eb186600fdf739bd60707faa8a6f66b2883e4d53dc19efbc3e793ed",
+      "width_initialization.py": "3b7c225fa80f4ec55ff3067b8541cfc9a9ba9522854f1a115fc1c6e6a2786837",
+      "width_optimization.py": "7778752c0c7547727ba896647665b6e186a580bc72dfd15d23fe0fbe0627b57f"
+    }
+  },
+  "finished": "2026-11-13T15:43:38+0000",
+  "total_elapsed_s": 8.109674453735352
+}

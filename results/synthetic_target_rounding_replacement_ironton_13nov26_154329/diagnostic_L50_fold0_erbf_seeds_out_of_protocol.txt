@@ -1,0 +1,12 @@
+y_L50 fold0 seed 42 test 0.9389 train 0.9437 n_rbf 0
+y_L50 fold0 seed 0 test 0.9895 train 0.989 n_rbf 0
+y_L50 fold0 seed 7 test 0.989 train 0.9893 n_rbf 0
+y_L50 fold0 seed 123 test 0.9891 train 0.989 n_rbf 0
+y_L100 fold0 seed 42 test 0.9883 train 0.9881 n_rbf 0
+y_L100 fold0 seed 0 test 0.979 train 0.9802 n_rbf 0
+y_L100 fold0 seed 7 test 0.9886 train 0.9894 n_rbf 0
+y_L100 fold0 seed 123 test 0.9891 train 0.9889 n_rbf 0
+y_continuous fold0 seed 42 test 0.9899 train 0.9893 n_rbf 0
+y_continuous fold0 seed 0 test 0.9897 train 0.9899 n_rbf 0
+y_continuous fold0 seed 7 test 0.9893 train 0.9895 n_rbf 0
+y_continuous fold0 seed 123 test 0.9448 train 0.9452 n_rbf 0

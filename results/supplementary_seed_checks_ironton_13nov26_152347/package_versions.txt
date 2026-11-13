@@ -1,0 +1,184 @@
+# ~/micromamba/envs/poly_erbf_benchmark/bin/python -m pip freeze (2026-11-13T15:23:58+00:00)
+aiohappyeyeballs==2.6.1
+aiohttp==3.13.3
+aiosignal==1.4.0
+alembic @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_alembic_1768487688/work
+annotated-types==0.7.0
+antlr4-python3-runtime==4.9.3
+anyio==4.12.1
+aplr==10.22.0
+argon2-cffi==25.1.0
+argon2-cffi-bindings==25.1.0
+asttokens==3.0.1
+attrs==25.4.0
+autorank==1.3.0
+backoff==2.2.1
+backports.zstd @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_backports.zstd_1767045004/work
+baycomp==1.0.3
+blinker==1.9.0
+Brotli @ file:///home/conda/feedstock_root/build_artifacts/brotli-split_1764016952863/work
+certifi==2026.1.4
+cffi==2.0.0
+charset-normalizer==3.4.4
+click==8.3.1
+cloudpickle==3.1.2
+colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1733218098505/work
+colorlog @ file:///home/conda/feedstock_root/build_artifacts/colorlog_1760645008230/work
+comm==0.2.3
+contourpy @ file:///home/conda/feedstock_root/build_artifacts/contourpy_1762525251295/work
+cycler @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_cycler_1764466758/work
+dash==4.1.0
+dash_cytoscape==1.0.2
+datasets==4.5.0
+decorator==5.2.1
+dill==0.4.0
+distro==1.9.0
+einops==0.8.1
+-e git+https://github.com/gerberl/erbf.git@73755edda1ae9fbf3bc7756eb49d06a21bc82ba3#egg=erbf
+et_xmlfile @ file:///home/conda/feedstock_root/build_artifacts/et_xmlfile_1733749653422/work
+eval_type_backport==0.3.1
+executing==2.2.1
+filelock @ file:///home/conda/feedstock_root/build_artifacts/filelock_1768022204021/work
+Flask==3.1.3
+fonttools @ file:///home/conda/feedstock_root/build_artifacts/fonttools_1765632549069/work
+freetype-py @ file:///home/conda/feedstock_root/build_artifacts/freetype-py_1650983368720/work
+frozenlist==1.8.0
+fsspec==2025.10.0
+gevent==25.9.1
+gmpy2 @ file:///home/conda/feedstock_root/build_artifacts/gmpy2_1762946764387/work
+greenlet @ file:///home/conda/feedstock_root/build_artifacts/greenlet_1764863561712/work
+h11==0.16.0
+h2 @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_h2_1756364871/work
+hf-xet==1.2.0
+hpack @ file:///home/conda/feedstock_root/build_artifacts/hpack_1737618293087/work
+httpcore==1.0.9
+httpx==0.28.1
+huggingface_hub==1.3.2
+hyperframe @ file:///home/conda/feedstock_root/build_artifacts/hyperframe_1737618333194/work
+idna==3.11
+importlib_metadata @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_importlib-metadata_1747934053/work
+interpret==0.7.8
+interpret-core==0.7.8
+ipython==9.11.0
+ipython_pygments_lexers==1.1.1
+ipywidgets==8.1.8
+itsdangerous==2.2.0
+jedi==0.19.2
+Jinja2 @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_jinja2_1764517220/work
+joblib @ file:///home/conda/feedstock_root/build_artifacts/joblib_1765794027227/work
+jupyterlab_widgets==3.0.16
+kiwisolver @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_kiwisolver_1762488738/work
+liac-arff==2.5.0
+llvmlite==0.46.0
+lxml @ file:///home/conda/feedstock_root/build_artifacts/lxml_1762506176677/work
+Mako @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_mako_1764678340/work
+markdown-it-py==4.0.0
+MarkupSafe @ file:///home/conda/feedstock_root/build_artifacts/markupsafe_1759055168201/work
+matplotlib==3.10.8
+matplotlib-inline==0.2.1
+mdurl==0.1.2
+minio==7.2.20
+mpmath @ file:///home/conda/feedstock_root/build_artifacts/mpmath_1733302684489/work
+multidict==6.7.0
+multiprocess==0.70.18
+munkres==1.1.4
+narwhals==2.18.1
+nest-asyncio==1.6.0
+networkx @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_networkx_1765215107/work
+numba==0.63.1
+numpy==2.3.5
+omegaconf==2.3.0
+openml==0.15.1
+openpyxl @ file:///home/conda/feedstock_root/build_artifacts/openpyxl_1757332054946/work
+optree @ file:///home/conda/feedstock_root/build_artifacts/optree_1763124258270/work
+optuna @ file:///home/conda/feedstock_root/build_artifacts/optuna_1762762228333/work
+packaging @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_packaging_1745345660/work
+pandas==2.3.3
+parso==0.8.6
+password-strength==0.0.3.post2
+patsy @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_patsy_1760998269/work
+# Editable install with no version control (perbf==0.1.0)
+-e /home/staff/luciano/Dropbox/00.new.structure/rke-doing/poly_erbf_benchmark
+pexpect==4.9.0
+pillow @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_pillow_1767353193/work
+platformdirs==4.5.1
+plotly==6.6.0
+pmlb==1.0.1.post3
+-e git+https://github.com/gerberl/poly-basis-ml.git@989bd430141b2306f089969d305a24619f4322d6#egg=poly_basis_ml
+posthog==6.9.3
+prompt_toolkit==3.0.52
+propcache==0.4.1
+psutil==7.2.2
+ptyprocess==0.7.0
+pure_eval==0.2.3
+pyarrow==23.0.0
+pybind11 @ file:///D:/bld/bld/rattler-build_pybind11_1755953378/work
+pybind11-global @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_pybind11-global_1755953338/work
+pycairo==1.29.0
+pycparser==2.23
+pycryptodome==3.23.0
+pydantic==2.12.5
+pydantic-settings==2.12.0
+pydantic_core==2.41.5
+Pygments==2.19.2
+pyparsing @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_pyparsing_1766475444/work
+PySide6==6.10.1
+PySocks @ file:///home/conda/feedstock_root/build_artifacts/pysocks_1733217236728/work
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.1
+pytz==2025.2
+PyYAML==6.0.3
+rdkit @ file:///home/conda/feedstock_root/build_artifacts/rdkit-meta_1767159488726/work
+reportlab @ file:///home/conda/feedstock_root/build_artifacts/reportlab_1768558311601/work
+requests==2.32.5
+retrying==1.4.2
+rich==14.0.0
+rlPyCairo @ file:///home/conda/feedstock_root/build_artifacts/rlpycairo_1756864152814/work
+ruff==0.14.13
+SALib==1.5.2
+scikit-learn==1.6.1
+scipy @ file:///home/conda/feedstock_root/build_artifacts/scipy-split_1768799527240/work/dist/scipy-1.17.0-cp312-cp312-linux_x86_64.whl#sha256=8b499fab1921b5531f77c66246d6a64569714eeb749de15e7f3ceeb2a749a3b0
+seaborn @ file:///home/conda/feedstock_root/build_artifacts/seaborn-split_1733730015268/work
+setuptools==80.9.0
+shap==0.51.0
+shellingham==1.5.4
+shiboken6==6.10.1
+six==1.17.0
+slicer==0.0.8
+SQLAlchemy @ file:///home/conda/feedstock_root/build_artifacts/sqlalchemy_1765351709678/work
+sseclient-py==1.8.0
+stack-data==0.6.3
+statsmodels @ file:///home/conda/feedstock_root/build_artifacts/statsmodels_1764983117433/work
+sympy @ file:///home/conda/feedstock_root/build_artifacts/sympy_1745946051654/work
+tabpfn==6.3.1
+tabpfn-client==0.2.8
+tabpfn-common-utils==0.2.14
+# Editable install with no version control (tabular_fs==0.1.0)
+-e /home/staff/luciano/Dropbox/00.new.structure/rke-doing/my-own-packages-modules/tabular_fs
+threadpoolctl @ file:///home/conda/feedstock_root/build_artifacts/threadpoolctl_1741878222898/work
+tomli @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_tomli_1768146676/work
+torch @ file:///home/conda/feedstock_root/build_artifacts/libtorch_1768417387920/work
+tornado @ file:///home/conda/feedstock_root/build_artifacts/tornado_1765836395280/work
+tqdm @ file:///home/conda/feedstock_root/build_artifacts/tqdm_1735661334605/work
+traitlets==5.14.3
+triton @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_triton_1763015432/work
+typer-slim==0.21.1
+typing-inspection==0.4.2
+typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_typing_extensions_1756220668/work
+tzdata==2025.3
+ucimlrepo==0.0.7
+unicodedata2 @ file:///home/conda/feedstock_root/build_artifacts/unicodedata2_1763054767730/work
+urllib3==2.6.3
+visidata @ file:///home/conda/feedstock_root/build_artifacts/visidata_1757991006711/work
+wcwidth==0.6.0
+Werkzeug==3.1.7
+wheel==0.45.1
+widgetsnbextension==4.0.15
+xgboost @ file:///home/conda/feedstock_root/build_artifacts/xgboost-split_1768314074650/work/python-package
+xlrd @ file:///home/conda/feedstock_root/build_artifacts/xlrd_1756170038895/work
+xmltodict==1.0.2
+xxhash==3.6.0
+yarl==1.22.0
+zipp @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_zipp_1764460141/work
+zope.event==6.1
+zope.interface==8.2

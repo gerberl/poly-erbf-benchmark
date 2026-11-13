@@ -1,0 +1,101 @@
+=== Study A (seed SD, ddof=1) ===
+                      test_r2_mean                          test_r2_sd                            gap_mean                              gap_sd                     
+selection_procedure all_rows_leaky march_csv train_only all_rows_leaky march_csv train_only all_rows_leaky march_csv train_only all_rows_leaky march_csv train_only
+dataset                                                                                                                                                            
+california_housing             NaN    0.7686     0.7686            NaN    0.0077     0.0077            NaN    0.0371     0.0371            NaN    0.0033     0.0033
+concrete_strength              NaN    0.8496     0.8451            NaN    0.0119     0.0084            NaN    0.0474     0.0553            NaN    0.0100     0.0086
+esol                           NaN    0.9101     0.9082            NaN    0.0039     0.0021            NaN    0.0166     0.0196            NaN    0.0034     0.0014
+power_plant                    NaN    0.9384     0.9384            NaN    0.0011     0.0011            NaN    0.0104     0.0104            NaN    0.0010     0.0010
+superconduct                0.8473    0.8527     0.8484         0.0051    0.0046     0.0026         0.0273    0.0226     0.0248         0.0052    0.0059     0.0061
+
+=== Study B config means (test R2) ===
+selection_procedure                            all_rows_leaky  march_csv  train_only
+dataset            center_init width_init                                           
+california_housing kmeans      local_ridge                NaN     0.7455      0.7455
+                               local_variance             NaN     0.7513      0.7513
+                   lipschitz   local_ridge                NaN     0.7681      0.7681
+                               local_variance             NaN     0.7629      0.7629
+concrete_strength  kmeans      local_ridge                NaN     0.8708      0.8708
+                               local_variance             NaN     0.8492      0.8492
+                   lipschitz   local_ridge                NaN     0.8486      0.8491
+                               local_variance             NaN     0.8501      0.8486
+esol               kmeans      local_ridge                NaN     0.8995      0.8994
+                               local_variance             NaN     0.8982      0.8982
+                   lipschitz   local_ridge                NaN     0.9082      0.9073
+                               local_variance             NaN     0.8963      0.8936
+power_plant        kmeans      local_ridge                NaN     0.9382      0.9382
+                               local_variance             NaN     0.9399      0.9399
+                   lipschitz   local_ridge                NaN     0.9381      0.9381
+                               local_variance             NaN     0.9384      0.9384
+superconduct       kmeans      local_ridge             0.8328     0.8328      0.8247
+                               local_variance          0.8374     0.8374      0.8404
+                   lipschitz   local_ridge             0.8477     0.8548      0.8472
+                               local_variance          0.8484     0.8468      0.8498
+
+=== Study B config SD (test R2) ===
+selection_procedure                            all_rows_leaky  march_csv  train_only
+dataset            center_init width_init                                           
+california_housing kmeans      local_ridge                NaN     0.0055      0.0055
+                               local_variance             NaN     0.0083      0.0083
+                   lipschitz   local_ridge                NaN     0.0078      0.0078
+                               local_variance             NaN     0.0044      0.0044
+concrete_strength  kmeans      local_ridge                NaN     0.0082      0.0082
+                               local_variance             NaN     0.0155      0.0155
+                   lipschitz   local_ridge                NaN     0.0103      0.0048
+                               local_variance             NaN     0.0098      0.0068
+esol               kmeans      local_ridge                NaN     0.0025      0.0019
+                               local_variance             NaN     0.0026      0.0026
+                   lipschitz   local_ridge                NaN     0.0013      0.0006
+                               local_variance             NaN     0.0095      0.0139
+power_plant        kmeans      local_ridge                NaN     0.0014      0.0014
+                               local_variance             NaN     0.0005      0.0005
+                   lipschitz   local_ridge                NaN     0.0013      0.0013
+                               local_variance             NaN     0.0009      0.0009
+superconduct       kmeans      local_ridge             0.0078     0.0078      0.0083
+                               local_variance          0.0060     0.0060      0.0017
+                   lipschitz   local_ridge             0.0067     0.0014      0.0021
+                               local_variance          0.0032     0.0027      0.0053
+
+=== Study B ranges ===
+                    config_mean_range                      individual_fit_range                     
+selection_procedure    all_rows_leaky march_csv train_only       all_rows_leaky march_csv train_only
+dataset                                                                                             
+california_housing                NaN    0.0226     0.0226                  NaN    0.0368     0.0368
+concrete_strength                 NaN    0.0222     0.0222                  NaN    0.0451     0.0451
+esol                              NaN    0.0119     0.0137                  NaN    0.0242     0.0301
+power_plant                       NaN    0.0019     0.0019                  NaN    0.0036     0.0036
+superconduct                   0.0156    0.0220     0.0252               0.0300    0.0323     0.0350
+
+=== superconduct paired: corrected - original (same env) ===
+study center_init     width_init  seed  test_r2_corrected  test_r2_original  test_r2_diff_corrected_minus_original  gap_diff_corrected_minus_original
+    A   lipschitz    local_ridge     0             0.8521            0.8493                                 0.0029                            -0.0035
+    A   lipschitz    local_ridge     7             0.8484            0.8440                                 0.0044                            -0.0210
+    A   lipschitz    local_ridge    42             0.8455            0.8487                                -0.0031                             0.0033
+    A   lipschitz    local_ridge   123             0.8466            0.8540                                -0.0074                             0.0085
+    A   lipschitz    local_ridge   999             0.8495            0.8406                                 0.0089                             0.0001
+    B   lipschitz    local_ridge    42             0.8455            0.8487                                -0.0031                             0.0033
+    B   lipschitz    local_ridge   123             0.8466            0.8540                                -0.0074                             0.0085
+    B   lipschitz    local_ridge   999             0.8495            0.8406                                 0.0089                             0.0001
+    B   lipschitz local_variance    42             0.8520            0.8504                                 0.0015                            -0.0045
+    B   lipschitz local_variance   123             0.8437            0.8501                                -0.0064                             0.0112
+    B   lipschitz local_variance   999             0.8537            0.8447                                 0.0091                            -0.0058
+    B      kmeans    local_ridge    42             0.8187            0.8358                                -0.0171                             0.0112
+    B      kmeans    local_ridge   123             0.8212            0.8240                                -0.0028                             0.0004
+    B      kmeans    local_ridge   999             0.8341            0.8386                                -0.0045                             0.0015
+    B      kmeans local_variance    42             0.8415            0.8438                                -0.0022                             0.0085
+    B      kmeans local_variance   123             0.8385            0.8366                                 0.0019                             0.0075
+    B      kmeans local_variance   999             0.8412            0.8318                                 0.0095                            -0.0086
+
+=== ironton vs March, by procedure/dataset ===
+                                         n  exact  max_abs_diff  mean_diff
+selection_procedure dataset                                               
+all_rows_leaky      superconduct        17      4        0.0157    -0.0025
+train_only          california_housing  17     15        0.0000    -0.0000
+                    concrete_strength   17      5        0.0174    -0.0015
+                    esol                17      3        0.0225    -0.0012
+                    power_plant         17     16        0.0000    -0.0000
+                    superconduct        17      0        0.0171    -0.0030
+
+Bounds (corrected): max Study A seed SD = 0.0084 (paper ~0.012) -> HOLDS; max Study B config-mean range = 0.0252 (paper <0.025) -> EXCEEDED
+  [march_csv] max seed SD = 0.0119; max config-mean range = 0.0226
+  [all_rows_leaky] max seed SD = 0.0051; max config-mean range = 0.0156

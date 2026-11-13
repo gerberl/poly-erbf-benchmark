@@ -270,9 +270,10 @@ def load_results(results_dir: Path, include_hyperparams: bool = False) -> pd.Dat
             row['n_samples_used'] = res.get('n_samples_used', row['n_samples'])
             row['subsampled'] = res.get('subsampled', False)
 
-            # Per-instance inference time (microseconds)
-            if not pd.isna(row['eval_time']) and row['n_samples'] > 0:
-                row['eval_time_per_instance_us'] = (row['eval_time'] / row['n_samples']) * 1e6
+            # Each fold times predictions on both its training and test rows.
+            row['n_prediction_rows'] = len(res.get('fold_results', [])) * row['n_samples_used']
+            if not pd.isna(row['eval_time']) and row['n_prediction_rows'] > 0:
+                row['eval_time_per_instance_us'] = (row['eval_time'] / row['n_prediction_rows']) * 1e6
             else:
                 row['eval_time_per_instance_us'] = np.nan
 

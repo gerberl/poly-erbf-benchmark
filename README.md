@@ -1,98 +1,69 @@
 # Polynomial and Ellipsoidal RBF Benchmark
 
-Reproducibility repository for the paper: *Revisiting Chebyshev Polynomial and Anisotropic RBF Models for Tabular Regression*.
+Reproducibility repository for *Revisiting Chebyshev Polynomial and Anisotropic RBF Models for Tabular Regression*. Updated for the second KBS revision, 13 November 2026.
 
+## Paper and supplementary material
 
-## Repository structure
+- [Current clean KBS manuscript](paper/manuscript-kbs-clean.pdf)
+- [Scientific Supplementary Material](paper/supplementary-material.pdf): dataset catalogue, source IDs/URLs and selected hyperparameter distributions
+- [Main LaTeX source archive](paper/manuscript-latex-source.zip)
+- [Supplementary LaTeX source archive](paper/supplementary-latex-source.zip)
+- [arXiv record](https://arxiv.org/abs/2602.22422) (may contain the earlier preprint until its update is processed)
 
-```
-perbf/              # Library modules (data loading, tuning, evaluation, analysis)
-scripts/            # Runnable scripts (benchmark runner, summarisation, figure generation)
-making_plots/       # Figure generation scripts (linedot rank plots)
-results/            # Pre-computed summary CSVs from the paper's experiments
-figures/            # Generated figures used in the paper
-```
+## What is included
 
-## Setup
+| Location | Contents |
+| --- | --- |
+| `perbf/` | Current dataset loaders, preprocessing, tuning and evaluation code |
+| `scripts/` | Benchmark runner, summarisation, bootstrap and export scripts |
+| `results/benchmark_summary/` | Corrected revision-A summaries: 494 model-dataset results, nine models, 55 datasets |
+| `results/per_fold_results.csv` | 2,470 outer-fold records, including accuracy, timing and selected hyperparameters |
+| `results/scalability-fixpipeline-11jul26/` | 200 outer-fold records for the five-model, eight-dataset full-scale check and its run configuration |
+| `results/stability/` | Corrected bootstrap summaries: eight CPU models on 55 datasets and TabPFN on 44 |
+| `figures/` | Six final figure panels in PNG and PDF formats; the removed gap-stability panel is not included |
+| `expl/` | Supplementary experiment scripts, conditioning checks and corrected timing/stability analyses |
+| `results/supplementary_seed_checks_ironton_13nov26_152347/` | Corrected seed/initialisation results, provenance and historical comparison |
+| `results/synthetic_target_rounding_replacement_ironton_13nov26_154329/` | Synthetic inputs, folds, 135 fit results, predictions, validation and provenance |
+
+## Datasets
+
+The complete 55-dataset collection is **not vendored here**. The Supplementary Material gives the dataset catalogue and links/IDs; `perbf/data/loader.py` retrieves data from the original providers and generates synthetic benchmarks. Source datasets retain their providers' licences and access conditions. The synthetic target-rounding experiment includes its generated input data and split indices directly. Large fitted-estimator joblib files are not shipped; the main benchmark's fold-level numerical results and selected hyperparameters are provided as CSV instead.
+
+## Setup and benchmark execution
 
 ```bash
-# Create environment
 micromamba create -n polyerbfbench -f environment.yml
 micromamba activate polyerbfbench
-
-# Install custom model packages
 pip install erbf poly-basis-ml
+pip install -e .
 
-# Verify
-python -c "from erbf import ERBFRegressor; print('OK')"
+# Main benchmark configuration: 50-feature and 50,000-sample caps
+python scripts/run_benchmark.py --max-features 50 --max-samples 50000 \
+    --output-dir results/my_revision_A --n-jobs 1
+
+# Summarise a completed benchmark
+python scripts/summarize_benchmark.py results/my_revision_A
 ```
 
-TabPFN requires a separate install (`pip install tabpfn`). The benchmark runs without it (TabPFN is simply skipped).
+TabPFN uses local GPU inference and requires the corresponding `tabpfn` package and model access. No paid inference API is used in the paper. Models depend on `erbf`, `poly-basis-ml`, scikit-learn, XGBoost and InterpretML. The supplementary run directories contain the Linux environment exports and source hashes used for those experiments; these are provenance records, not portable cross-platform lock files.
 
-## Running the benchmark
+Feature selection is fitted separately inside each inner training split, then refitted on the outer training fold. The Spearman-filter index alignment is corrected. EBM uses `interactions=0`; ERBF and ChebyPoly are the smooth-basis group, ChebyTree is reported separately as a hybrid, and EBM as an additive bin-based comparator. Domain strata are exploratory.
 
-All scripts add the repo root to `sys.path`, so `perbf/` is importable without installation. Alternatively, `pip install -e .` uses the included `pyproject.toml`.
+## Rechecking supplementary results
+
+Run commands from the repository root with `PYTHONPATH=.`:
 
 ```bash
-# Quick test (2 models x 2 datasets)
-python scripts/run_benchmark.py --test
-
-# All models, preprocessed (max 50 features, 50k samples)
-python scripts/run_benchmark.py \
-    --max-features 50 --max-samples 50000 \
-    --output-dir results/my_run_A --n-jobs=-1
-
-# Full-scale data, no preprocessing
-python scripts/run_benchmark.py \
-    --models ridge dt xgb chebypoly chebytree \
-    --datasets diamonds nyc-taxi-green-dec-2016 particulate-matter-ukair-2017 \
-               qsar_tid_11 superconduct friedman1_d100 \
-    --no-preprocess --output-dir results/my_run_B --n-jobs=-1
-
-# Run specific models or datasets
-python scripts/run_benchmark.py --models erbf chebypoly --datasets superconduct esol
-
-# Summarise results
-python scripts/summarize_benchmark.py results/my_run_A
+PYTHONPATH=. python expl/matched_accuracy_by_family_basis_hybrid_ebm_13nov26.py
+PYTHONPATH=. python expl/synthetic_target_rounding_replacement_summarise_ironton_13nov26.py \
+    results/synthetic_target_rounding_replacement_ironton_13nov26_154329
 ```
 
-## Regenerating figures from pre-computed results
+The rounding summary script validates saved predictions and rewrites derived summaries; it does not fit models. Its runner and the seed/initialisation runner accept a new output directory for fresh experiments. Main-bootstrap reruns require the benchmark joblib outputs produced by a new benchmark run. The saved CSVs support inspecting published results without those estimator files.
 
-The `results/benchmark_summary/` directory contains the summary CSVs used in the paper. To regenerate figures:
+Historical March seed/initialisation results are retained only as comparison inputs: they reproduced partially, and the cause is unresolved. The paper uses the corrected Linux November results. Conditioning uses one intercept; six numerically singular cases are identified separately. The old expanded conditioning CSV is retained as the dataset-list input, not as the final diagnostic. The rounding experiment retains the seed-sensitive 50-level fit rather than excluding it.
 
-```bash
-python scripts/generate_cd_plots.py
-python scripts/generate_pareto_plots.py
-python scripts/generate_boxstrip_r2adj.py
-python scripts/compute_timing_table.py
-```
-
-Figures are written to `figures/`.
-
-## Models
-
-| Key | Model | Package |
-|-----|-------|---------|
-| `ridge` | Ridge regression | scikit-learn |
-| `dt` | Decision tree | scikit-learn |
-| `rf` | Random forest | scikit-learn |
-| `xgb` | XGBoost | xgboost |
-| `ebm` | Explainable Boosting Machine | interpret |
-| `erbf` | Ellipsoidal RBF network | erbf |
-| `chebypoly` | Chebyshev polynomial regression | poly-basis-ml |
-| `chebytree` | Chebyshev model tree | poly-basis-ml |
-| `tabpfn` | TabPFN | tabpfn (optional) |
-
-## Dataset strata
-
-Datasets are grouped into four strata by expected target-function smoothness:
-
-| Stratum | Domain |
-|---------|--------|
-| S1 | Engineering / simulation | 
-| S2 | Behavioural / social |
-| S3 | Physics / chemistry / life science | 
-| S4 | Economic / pricing (threshold-heavy) | 
+`figures/` contains the exact submitted panels. Run `python making_plots/generate_rank_linedot_plots_04feb26.py` for accuracy ranks and the accuracy distribution, then `python scripts/regenerate_final_gap_and_tradeoff_figures_13nov26.py` for gap ranks and the two Pareto panels. These regenerate from the supplied corrected CSV; font availability may affect typography. Older generic plotting scripts are retained for exploration. Corrected batch prediction times are in `expl/corrected_timing_per_dataset_13nov26.csv` and its model summary; prediction time covers training plus test rows across all five folds and is normalised per 1,000 predicted rows.
 
 ## Citation
 
@@ -108,6 +79,4 @@ Datasets are grouped into four strata by expected target-function smoothness:
 }
 ```
 
-## Licence
-
-MIT. See [LICENSE](LICENSE).
+Code is released under the MIT licence; see LICENSE. This does not relicense third-party datasets.

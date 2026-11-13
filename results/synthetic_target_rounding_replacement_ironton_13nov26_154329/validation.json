@@ -1,0 +1,14 @@
+{
+  "135_unique_results": true,
+  "finite_scores": true,
+  "finite_predictions": true,
+  "27000_prediction_rows": true,
+  "each_row_heldout_once_per_condition_model": true,
+  "identical_folds_all_conditions_models": true,
+  "continuous_target_unchanged": true,
+  "rounded_targets_on_grid": true,
+  "occupied_levels_recorded_and_match": true,
+  "prediction_targets_match_data": true,
+  "fold_scores_reproduce_from_predictions": true,
+  "summary_reproduces_from_predictions_mean_of_fold_r2": true
+}

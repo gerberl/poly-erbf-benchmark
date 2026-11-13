@@ -46,15 +46,15 @@ ridge           19.2s/17.6m      0.0s/0.6s      0.0s/0.2s    19.3s/17.6m
 === Per-Instance Inference Time ===
 Model           Mean (µs)  Median (µs)
 --------------------------------------
-tabpfn             5145.7       3674.8
-erbf                 10.4          9.7
-chebytree            38.2         24.1
-xgb                  18.2         10.0
-chebypoly            16.4         11.7
-ebm                   1.9          1.6
-rf                  220.4        165.1
-dt                    1.4          0.7
-ridge                 0.8          0.4
+tabpfn             1253.1        804.7
+erbf                  2.1          1.9
+chebytree             7.3          4.7
+xgb                   3.4          2.0
+chebypoly             3.5          2.2
+ebm                   0.5          0.3
+rf                   51.2         37.4
+dt                    0.3          0.2
+ridge                 0.2          0.1
 
 === Wins by Accuracy Metric ===
     model  R²  MAE  RMSE  Total
@@ -273,52 +273,3 @@ power_grid_stability                 S4     0.987     0.951     0.896     0.926 
 synthetic_multithreshold             S4     0.965     0.888     0.931     0.959     0.858     0.963     0.966     0.958     0.569
 synthetic_piecewise                  S4     0.963     0.960     0.952     0.935     0.955     0.920     0.935     0.902     0.791
 synthetic_step                       S4     0.939     0.877     0.932     0.922     0.844     0.923     0.939     0.938     0.579
-
-=== Critical Difference Analysis (alpha=0.05) ===
-Friedman test with Nemenyi post-hoc (autorank)
-
---- R² adjusted ---
-Critical Difference (CD): 1.620
-Rankings:
-           meanrank    median       mad
-ridge      7.945455  0.596905  0.195232
-dt         7.454545  0.716493   0.20885
-rf         5.327273  0.771375  0.167615
-ebm        5.127273  0.752327  0.170926
-chebypoly  4.854545  0.791468  0.151257
-xgb        4.436364  0.828009  0.139392
-chebytree  4.145455  0.831006  0.120794
-erbf       4.090909  0.818072  0.144013
-tabpfn     1.481481  0.871721       NaN
-Plot: cd_plot_R2_adjusted.png
-
-Statistical interpretation:
-  The statistical analysis was conducted for 9 populations with 55 paired samples.
-  The family-wise significance level of the tests is alpha=0.050.
-  We rejected the null hypothesis that the population is normal for the populations ridge (p=0.000), rf (p=0.000), ebm (p=0.001), chebytree (p=0.000), erbf (p=0.000), and tabpfn (p=0.000). Therefore, we assume that not all populations are normal.
-  Because we have more than two populations and the populations and some of them are not normal, we use the non-parametric Friedman test as omnibus test to determine if there are any significant differences between the median values of the populations. We use the post-hoc Nemenyi test to infer which differences are significant. We report the median (MD), the median absolute deviation (MAD) and the mean rank (MR) among all populations over the samples. Differences between populations are significant, if the difference of the mean rank is greater than the critical distance CD=1.620 of the Nemenyi test.
-  We reject the null hypothesis (p=nan) of the Friedman test that there is no difference in the central tendency of the populations ridge (MD=0.597+-0.206, MAD=0.195, MR=7.945), dt (MD=0.716+-0.224, MAD=0.209, MR=7.455), rf (MD=0.771+-0.207, MAD=0.168, MR=5.327), ebm (MD=0.752+-0.196, MAD=0.171, MR=5.127), chebypoly (MD=0.791+-0.219, MAD=0.151, MR=4.855), xgb (MD=0.828+-0.208, MAD=0.139, MR=4.436), chebytree (MD=0.831+-0.203, MAD=0.121, MR=4.145), erbf (MD=0.818+-0.200, MAD=0.144, MR=4.091), and tabpfn (MD=0.872+-0.169, MAD=nan, MR=1.481). Therefore, we assume that there is a statistically significant difference between the median values of the populations.
-  Based on the post-hoc Nemenyi test, we assume that there are no significant differences within the following groups: ridge and dt; rf, ebm, chebypoly, xgb, chebytree, and erbf. All other differences are significant.
-
---- Generalization Gap ---
-Critical Difference (CD): 1.620
-Rankings:
-           meanrank    median       mad
-xgb        8.309091 -0.079062  0.041133
-tabpfn     6.037037 -0.046586       NaN
-dt         5.836364 -0.031583  0.025021
-rf         5.672727 -0.024437  0.019239
-chebytree  4.854545 -0.025799  0.016125
-ebm        4.618182 -0.019560  0.012562
-erbf       4.272727 -0.018325   0.01696
-chebypoly  3.545455 -0.014123   0.01156
-ridge      1.800000 -0.003620  0.002822
-Plot: cd_plot_Generalization_Gap.png
-
-Statistical interpretation:
-  The statistical analysis was conducted for 9 populations with 55 paired samples.
-  The family-wise significance level of the tests is alpha=0.050.
-  We rejected the null hypothesis that the population is normal for the populations tabpfn (p=0.000), dt (p=0.000), rf (p=0.000), chebytree (p=0.000), ebm (p=0.000), erbf (p=0.000), chebypoly (p=0.000), and ridge (p=0.000). Therefore, we assume that not all populations are normal.
-  Because we have more than two populations and the populations and some of them are not normal, we use the non-parametric Friedman test as omnibus test to determine if there are any significant differences between the median values of the populations. We use the post-hoc Nemenyi test to infer which differences are significant. We report the median (MD), the median absolute deviation (MAD) and the mean rank (MR) among all populations over the samples. Differences between populations are significant, if the difference of the mean rank is greater than the critical distance CD=1.620 of the Nemenyi test.
-  We reject the null hypothesis (p=nan) of the Friedman test that there is no difference in the central tendency of the populations xgb (MD=-0.079+-0.052, MAD=0.041, MR=8.309), tabpfn (MD=-0.047+-0.036, MAD=nan, MR=6.037), dt (MD=-0.032+-0.037, MAD=0.025, MR=5.836), rf (MD=-0.024+-0.027, MAD=0.019, MR=5.673), chebytree (MD=-0.026+-0.019, MAD=0.016, MR=4.855), ebm (MD=-0.020+-0.017, MAD=0.013, MR=4.618), erbf (MD=-0.018+-0.022, MAD=0.017, MR=4.273), chebypoly (MD=-0.014+-0.018, MAD=0.012, MR=3.545), and ridge (MD=-0.004+-0.007, MAD=0.003, MR=1.800). Therefore, we assume that there is a statistically significant difference between the median values of the populations.
-  Based on the post-hoc Nemenyi test, we assume that there are no significant differences within the following groups: tabpfn, dt, rf, chebytree, and ebm; dt, rf, chebytree, ebm, and erbf; chebytree, ebm, erbf, and chebypoly. All other differences are significant.

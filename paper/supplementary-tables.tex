@@ -1,0 +1,222 @@
+% Supplementary Material body: Dataset Catalogue (moved from the main appendix,
+% KBS R2 Phase 2). Compiled standalone by cheby-erbf-benchmark-kbs-supplementary.tex
+% with S-numbering (Table S1, Section S1). Cross-references back to the main paper
+% (target-type table) are given in prose since this document compiles separately.
+
+\section{Dataset Catalogue}
+\label{sec:dataset-catalogue}
+
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}lrrrrlp{3.5cm}@{}}
+\caption{All 55 benchmark datasets grouped by stratum.  $n$ = samples, $d$ = features, $n'$ and $d'$ = effective counts after preprocessing (shown only where they differ from $n$/$d$).  For the eight datasets that undergo per-fold feature selection, $d'$ is the median effective feature count across the five outer folds, as the selected set varies by fold; for all other datasets $d'$ reflects only deterministic quality filtering (removal of high-missingness and quasi-constant features).  Datasets with non-continuous targets are marked$^\dagger$ (13 total; the target types are detailed in the main paper).  Data URLs are hyperlinked in the electronic version.}
+\label{tab:dataset-catalogue} \\
+\toprule
+\textbf{Dataset} & \textbf{$n$} & \textbf{$d$} & \textbf{$n'$} & \textbf{$d'$} & \textbf{Source} & \textbf{Data URL} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Dataset} & \textbf{$n$} & \textbf{$d$} & \textbf{$n'$} & \textbf{$d'$} & \textbf{Source} & \textbf{Data URL} \\
+\midrule
+\endhead
+\midrule \multicolumn{7}{r}{\emph{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+% --- S1: Engineering/Simulation (13 datasets) ---
+\multicolumn{7}{l}{\textbf{S1 -- Engineering/Simulation (13 datasets)}} \\
+\midrule
+\texttt{airfoil\_noise}          & 1\,503  & 5   &  &     & UCI       & \uciref{291} \\
+\texttt{Ailerons}$^\dagger$      & 13\,750 & 33  &  & 30 & OpenML    & \oml{44137} \\
+\texttt{concrete\_strength}      & 1\,030  & 8   &  &     & UCI       & \uciref{165} \\
+\texttt{cpu\_act}$^\dagger$      & 8\,192  & 21  &  &     & OpenML    & \oml{44132} \\
+\texttt{elevators}$^\dagger$     & 16\,599 & 16  &  &     & OpenML    & \oml{44134} \\
+\texttt{energy\_efficiency\_heating} & 768  & 8   &  &     & UCI       & \uciref{242} \\
+\texttt{feynman\_gaussian}       & 8\,000  & 2   &  &     & HF        & \href{https://huggingface.co/datasets/yoshitomo-matsubara/srsd-feynman_hard}{srsd-feynman\_hard} \\
+\texttt{feynman\_wave\_interference} & 8\,000 & 4 &  &     & HF        & \href{https://huggingface.co/datasets/yoshitomo-matsubara/srsd-feynman_hard}{srsd-feynman\_hard} \\
+\texttt{friedman1}               & 2\,000  & 5   &  &     & sklearn   & make\_friedman1 \\
+\texttt{friedman1\_d100}         & 2\,000  & 100 &  & 19  & sklearn   & make\_friedman1 \\
+\texttt{pmlb\_215\_2dplanes}     & 40\,768 & 10  &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/215_2dplanes.html}{215\_2dplanes} \\
+\texttt{pmlb\_225\_puma8NH}      & 8\,192  & 8   &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/225_puma8NH.html}{225\_puma8NH} \\
+\texttt{power\_plant}            & 9\,568  & 4   &  &     & UCI       & \uciref{294} \\
+\midrule
+
+% --- S2: Behavioural/Social (10 datasets) ---
+\multicolumn{7}{l}{\textbf{S2 -- Behavioural/Social (10 datasets)}} \\
+\midrule
+\texttt{analcatdata\_supreme}$^\dagger$ & 4\,052  & 7   &  & 5   & OpenML    & \oml{504} \\
+\texttt{Bike\_Sharing\_Demand}$^\dagger$ & 17\,379 & 6   &  &     & OpenML    & \oml{44142} \\
+\texttt{food\_delivery\_time}$^\dagger$ & 45\,451 & 9   &  &     & OpenML    & \oml{46928} \\
+\texttt{pmlb\_1028\_SWD}$^\dagger$  & 1\,000  & 10  &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/1028_SWD.html}{1028\_SWD} \\
+\texttt{pmlb\_1029\_LEV}$^\dagger$  & 1\,000  & 4   &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/1029_LEV.html}{1029\_LEV} \\
+\texttt{pmlb\_1030\_ERA}$^\dagger$  & 1\,000  & 4   &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/1030_ERA.html}{1030\_ERA} \\
+\texttt{pmlb\_4544\_Geo\-Music}  & 1\,059  & 117 &  & 50 & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/4544_GeographicalOriginalofMusic.html}{4544\_Geo...Music} \\
+\texttt{pol}$^\dagger$           & 15\,000 & 26  &  & 16 & OpenML    & \oml{44133} \\
+\texttt{student\_performance}$^\dagger$ & 649 & 30 &  & 29 & UCI       & \uciref{320} \\
+\texttt{wine\_quality}$^\dagger$ & 6\,497  & 11  &  &     & OpenML    & \oml{44136} \\
+\midrule
+
+% --- S3: Physics/Chemistry/Life Sciences (16 datasets) ---
+\multicolumn{7}{l}{\textbf{S3 -- Physics/Chemistry/Life Sciences (16 datasets)}} \\
+\midrule
+\texttt{abalone}$^\dagger$       & 4\,177  & 7   &  &     & HF        & \href{https://huggingface.co/datasets/inria-soda/tabular-benchmark}{tabular-benchmark} \\
+\texttt{diabetes}                & 442     & 10  &  &     & sklearn   & load\_diabetes \\
+\texttt{esol}                    & 1\,128  & 7   &  &     & MolNet    & \href{https://moleculenet.org}{moleculenet.org} \\
+\texttt{freesolv}                & 642     & 16  &  & 13  & MolNet    & \href{https://moleculenet.org}{moleculenet.org} \\
+\texttt{lipophilicity}           & 4\,200  & 16  &  & 13  & MolNet    & \href{https://moleculenet.org}{moleculenet.org} \\
+\texttt{particulate-matter}      & 394\,299 & 9  & 50K &   & OpenML    & \oml{42207} \\
+\texttt{physiochem\_protein}     & 45\,730 & 9   &  &     & OpenML    & \oml{46949} \\
+\texttt{pmlb\_503\_wind}         & 6\,574  & 14  &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/503_wind.html}{503\_wind} \\
+\texttt{pmlb\_522\_pm10}         & 500     & 7   &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/522_pm10.html}{522\_pm10} \\
+\texttt{pmlb\_529\_pollen}       & 3\,848  & 4   &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/529_pollen.html}{529\_pollen} \\
+\texttt{pmlb\_547\_no2}          & 500     & 7   &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/547_no2.html}{547\_no2} \\
+\texttt{qm7}                     & 6\,834  & 16  &  & 14  & MolNet    & \href{https://moleculenet.org}{moleculenet.org} \\
+\texttt{qsar\_fish\_toxicity}    & 907     & 6   &  &     & OpenML    & \oml{46954} \\
+\texttt{qsar\_tid\_11}           & 5\,742  & 1\,024 &  & 50 & OpenML  & \oml{46953} \\
+\texttt{sulfur}                  & 10\,081 & 6   &  &     & OpenML    & \oml{44145} \\
+\texttt{superconduct}            & 21\,263 & 79  &  & 50  & OpenML    & \oml{44148} \\
+\midrule
+
+% --- S4: Economic/Pricing (16 datasets) ---
+\multicolumn{7}{l}{\textbf{S4 -- Economic/Pricing (16 datasets)}} \\
+\midrule
+\texttt{Allstate\_Claims}        & 188\,318 & 130 & 50K & 50 & OpenML  & \oml{42571} \\
+\texttt{Brazilian\_houses}       & 10\,692 & 8   &  &     & OpenML    & \oml{44141} \\
+\texttt{california\_housing}     & 20\,640 & 8   &  &     & sklearn   & fetch\_california\_housing \\
+\texttt{diamonds}                & 53\,940 & 6   & 50K &   & OpenML    & \oml{44140} \\
+\texttt{fiat\_500\_price}        & 1\,538  & 7   &  &     & OpenML    & \oml{46907} \\
+\texttt{healthcare\_insurance}   & 1\,338  & 6   &  &     & OpenML    & \oml{46931} \\
+\texttt{house\_16H}              & 22\,784 & 16  &  &     & OpenML    & \oml{44139} \\
+\texttt{house\_sales}            & 21\,613 & 15  &  & 14  & OpenML    & \oml{44144} \\
+\texttt{medical\_charges}        & 163\,065 & 3  & 50K &   & OpenML    & \oml{44146} \\
+\texttt{MiamiHousing2016}        & 13\,932 & 13  &  &     & OpenML    & \oml{44147} \\
+\texttt{nyc-taxi}      & 581\,835 & 9  & 50K & 8  & OpenML   & \oml{44143} \\
+\texttt{pmlb\_218\_house\_8L}    & 22\,784 & 8   &  &     & PMLB      & \href{https://epistasislab.github.io/pmlb/profile/218_house_8L.html}{218\_house\_8L} \\
+\texttt{power\_grid\_stability}  & 10\,000 & 12  &  &     & UCI       & \uciref{471} \\
+\texttt{synthetic\_multithreshold} & 750 & 6 & & & synth. & this study\,$^{\mathrm{a}}$ \\
+\texttt{synthetic\_piecewise}    & 2\,000 & 5 & & & synth. & this study\,$^{\mathrm{b}}$ \\
+\texttt{synthetic\_step}         & 2\,000 & 8 & & & synth. & this study\,$^{\mathrm{c}}$ \\
+\end{longtable}
+
+\smallskip
+{\footnotesize
+$^\dagger$\,Non-continuous target (ordinal, integer-valued, or discrete-like); the target-type breakdown is given in the main paper.  Treated as continuous regression throughout.
+All synthetic targets include additive Gaussian noise $\varepsilon$.\\[2pt]
+$^{\mathrm{a}}$\,$y = 3\ind{x_0>0}+2\ind{x_1>0.5}+1.5\ind{x_2<-0.3}+\ind{|x_3|<1}+0.5\,\ind{x_0>0}\ind{x_1>0}+\varepsilon$\\
+$^{\mathrm{b}}$\,$y = 2[x_0]_+ + 1.5[-x_1]_+ + [x_2-0.5]_+ - [x_0+x_1]_+ + \varepsilon$\\
+$^{\mathrm{c}}$\,$y = 2\ind{x_0>0}+3\ind{x_1>0.5}-1.5\ind{x_2<-0.5}+\ind{x_0>0}\ind{x_1>0}+\varepsilon$
+
+\medskip
+\noindent\textbf{Source key.}\quad
+UCI = UCI Machine Learning Repository;\;
+OpenML = OpenML repository;\;
+PMLB = Penn Machine Learning Benchmarks;\;
+MolNet = MoleculeNet;\;
+HF = Hugging Face Datasets;\;
+sklearn = scikit-learn \texttt{datasets} module;\;
+synth.\ = generated by this study.
+All Data URL entries are hyperlinked to the specific dataset version used.
+}
+}% end footnotesize
+
+
+
+% --- Winning configurations (moved from the main appendix, KBS R2 conciseness reorg) ---
+\section{Distribution of Winning Configurations}
+\label{sec:winning-configs}
+
+\Cref{tab:winning-configs} summarises the hyperparameter values selected by Optuna across the 55 datasets, reported as medians and interquartile ranges of per-dataset fold means for numeric parameters, and frequencies across selected outer-fold configurations for categorical parameters.
+These distributions characterise the configurations that the tuning procedure converges to and may serve as informed defaults for practitioners.
+
+{\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}p{0.12\linewidth}p{0.06\linewidth}p{0.34\linewidth}p{0.40\linewidth}@{}}
+\caption{Distribution of winning configurations across 55 datasets.  \emph{Tuned hyperparameters} are selected by Optuna; \emph{fitted properties} are emergent characteristics of the resulting model.  Numeric values are median (IQR) of per-dataset fold-averaged best parameters.  Categorical values show frequencies over 275 outer folds, except conditional interaction complexity (214 eligible folds). The numeric ERBF centre count averages only folds selecting a fixed count, then summarises the 51 datasets with at least one such fold.  Search spaces are given in the main paper.}
+\label{tab:winning-configs} \\
+\toprule
+\textbf{Model} & \textbf{Type} & \textbf{Parameter} & \textbf{Median (IQR) / frequency} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Model} & \textbf{Type} & \textbf{Parameter} & \textbf{Median (IQR) / frequency} \\
+\midrule
+\endhead
+\midrule \multicolumn{4}{r}{\emph{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+\mn{ridge}
+  & HP & \texttt{alpha}  & 7.428\; (1.94,\; 26.88) \\
+\midrule
+\mn{dt}
+  & HP & \texttt{max\_depth}  & 12\; (11,\; 13.2) \\
+  & HP & \texttt{min\_samples\_leaf}  & 0.008509\; (0.006975,\; 0.01491) \\
+  & HP & \texttt{min\_samples\_split}  & 0.02104\; (0.01734,\; 0.03762) \\
+\cmidrule(l){2-4}
+  & Fit & actual depth  & 9.6\; (8.1,\; 10.8) \\
+  & Fit & leaves  & 74\; (35.8,\; 85.8) \\
+\midrule
+\mn{rf}
+  & HP & \texttt{n\_estimators}  & 350.2\; (300.3,\; 416.4) \\
+  & HP & \texttt{max\_depth}  & 15.6\; (13.2,\; 17.1) \\
+  & HP & \texttt{max\_features}  & 0.7 (69.8\%); 0.5 (17.1\%); sqrt (8.4\%); 0.3 (4.7\%) \\
+\midrule
+\mn{xgb}
+  & HP & \texttt{max\_depth}  & 7.2\; (6.2,\; 7.8) \\
+  & HP & \texttt{learning\_rate}  & 0.2919\; (0.2861,\; 0.2945) \\
+  & HP & \texttt{subsample}  & 0.8416\; (0.8084,\; 0.8763) \\
+  & HP & \texttt{colsample\_bytree}  & 0.8346\; (0.7878,\; 0.8843) \\
+  & HP & \texttt{reg\_lambda}  & 0.1523\; (0.03249,\; 0.41) \\
+  & HP & \texttt{min\_child\_weight}  & 13.63\; (6.953,\; 18.2) \\
+\cmidrule(l){2-4}
+  & Fit & best iteration (early stop)  & 30\; (17.9,\; 59.1) \\
+\midrule
+\mn{erbf}
+  & HP & \texttt{n\_rbf}  & 67.33\; (46.08,\; 74) (51 datasets) \\
+  & HP & \texttt{n\_rbf} rule  & fixed (70.9\%); auto (29.1\%) \\
+  & HP & \texttt{alpha}  & 0.4456\; (0.1045,\; 5.354) \\
+  & HP & \texttt{center\_init}  & lipschitz (53.5\%); kmeans (46.5\%) \\
+  & HP & \texttt{width\_init}  & local\_ridge (63.3\%); local\_variance (36.7\%) \\
+\cmidrule(l){2-4}
+  & Fit & effective $K$  & 62.8\; (45.3,\; 69.8) \\
+  & Fit & width parameters  & 451.8\; (317,\; 862.8) \\
+\midrule
+\mn{chebypoly}
+  & HP & \texttt{complexity}  & 10\; (4.2,\; 12.5) \\
+  & HP & \texttt{alpha}  & 0.8514\; (0.108,\; 2.378) \\
+  & HP & \texttt{include\_interactions}  & True (77.8\%); False (22.2\%) \\
+  & HP & \texttt{max\_interaction\_complexity}  & 2 (69.6\%); 1 (30.4\%) (214 eligible folds) \\
+\cmidrule(l){2-4}
+  & Fit & total parameters  & 132.4\; (52.2,\; 186.1) \\
+\midrule
+\mn{chebytree}
+  & HP & \texttt{complexity}  & 2.8\; (2,\; 3.8) \\*
+  & HP & \texttt{max\_depth}  & 5\; (1.6,\; 8.6) \\*
+  & HP & \texttt{min\_samples\_leaf}  & 0.05599\; (0.03423,\; 0.06724) \\*
+  & HP & \texttt{alpha}  & 0.2075\; (0.03921,\; 1.221) \\*
+\cmidrule(l){2-4}
+\mn{chebytree} & Fit & leaves  & 7.2\; (3.4,\; 21.8) \\*
+  & Fit & parameters per leaf  & 27.6\; (14.6,\; 42.5) \\*
+  & Fit & total parameters  & 199.2\; (87.1,\; 466) \\
+\midrule
+\mn{ebm}
+  & HP & \texttt{max\_bins}  & 256 (64.0\%); 128 (36.0\%) \\
+  & HP & \texttt{learning\_rate}  & 0.04397\; (0.02871,\; 0.07404) \\
+  & HP & \texttt{min\_samples\_leaf}  & 4 (40.7\%); 10 (32.0\%); 2 (27.3\%) \\
+\midrule
+\multicolumn{4}{@{}p{0.95\linewidth}@{}}{\footnotesize HP = tuned hyperparameter (selected by Optuna); Fit = fitted model property (emergent, not directly tuned).  Categorical entries show percentages of eligible folds; numeric entries show median (Q1, Q3) across datasets after averaging within each dataset.} \\
+\end{longtable}
+}% end \small
+
+Several patterns emerge.
+\mn{erbf} selects Lipschitz-guided centre placement in 53.5\% of folds and local ridge width initialisation in 63.3\%.
+Fixed centre counts are selected in 70.9\% of folds, with the \texttt{auto} rule accounting for the remaining 29.1\%; the median effective centre count is 62.8 after averaging within each dataset.
+\mn{chebypoly} selects relatively high polynomial degrees (median~10, IQR 4.2--12.5), with interactions enabled in 77.8\% of folds.
+\mn{chebytree} uses a median depth of 5 (7.2 leaves) and lower-degree leaf polynomials (median~2.8).
+\mn{xgb} selects high learning rates (median~0.292); its median best-iteration index is 30 (IQR 17.9--59.1), well below the 2\,000-round limit.
+\mn{rf} selects a median of 350.2 trees, with a feature fraction of 0.7 chosen in 69.8\% of folds.
+
+% --- Per-dataset adjusted R^2 restored to the main appendix (11Jul26); see appendix.tex (tab:per-dataset-r2adj) ---
+
+
